@@ -1,0 +1,57 @@
+class HomeSpace implements ISpace {
+    //data
+    public SpaceType st = ISpace.SpaceType.HOME;
+    public int id;
+    public ISpace next_space = null;
+    public String color;
+    private Pawn pawn1 = null;
+    private Pawn pawn2 = null;
+
+    //constructor
+    HomeSpace(int id, String color) {
+        this.id = id;
+        this.color = color;
+    }
+
+    //functions
+    public boolean add_pawn(Pawn p) {
+        if (this.pawn1 == null) {
+            this.pawn1 = p;
+            return true;
+        } else if (this.pawn2 == null) {
+            this.pawn2 = p;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean remove_pawn(Pawn p) {
+        if (p.equals(this.pawn1)) {
+            this.pawn1 = this.pawn2;
+            this.pawn2 = null;
+            return true;
+        } else if (p.equals(this.pawn2)) {
+            this.pawn2 = null;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public ISpace get_next_space() {
+        return this.next_space;
+    }
+    
+    public void set_next_space(ISpace s) {
+        this.next_space = s;
+    }
+
+    public ISpace get_next_home() {
+        return null;
+    }
+
+    public void set_next_home(ISpace s) {
+        return;
+    }
+}

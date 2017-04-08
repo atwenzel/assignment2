@@ -15,5 +15,7 @@ class Main {
         g.register(c4);
 
         g.start();
+
+        Board b = new Board();
     }
 }
