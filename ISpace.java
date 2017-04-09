@@ -16,4 +16,10 @@ interface ISpace {
     ISpace get_next_home(); //get the next home
 
     void set_next_home(ISpace s); //set the next home
+
+    SpaceType get_space_type(); //get the space type
+
+    String get_color();  //get the space color
+
+    int get_id();   //return the space id
 }

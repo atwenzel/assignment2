@@ -56,5 +56,17 @@ class RegularSpace implements ISpace {
 
     public void set_next_home(ISpace s) {
         return;
-    } 
+    }
+
+    public ISpace.SpaceType get_space_type() {
+        return this.st;
+    }
+
+    public String get_color() {
+        return "";
+    }
+
+    public int get_id() {
+        return this.id;
+    }
 }

@@ -15,8 +15,11 @@ class Board {
         for (int i = 0; i < 4; i++) {
             //first safe spcae
             curr_space = new SafeSpace(curr_id);
+            curr_id++;
             if (i == 0) {
                 this.first_space = curr_space;
+            } else {
+                last_space.set_next_space(curr_space);
             }
             last_space = curr_space;
             //four regular spaces after safe space
@@ -67,6 +70,7 @@ class Board {
                 last_space = curr_space;
             } 
         } 
+        last_space.set_next_space(this.first_space);
     }  
     //functions
     private void set_entry(int i, ISpace entry_point) {
@@ -79,5 +83,35 @@ class Board {
         } else if (i == 3) {
             yellow_entry = entry_point;
         }
+    }
+
+    public void visualizer() {
+        ISpace curr_space = this.first_space;
+        ISpace curr_space_save = null;
+        String homestr = "";
+        do {
+            if (curr_space.get_space_type() == ISpace.SpaceType.REGULAR) {
+                System.out.println("regular space (id "+curr_space.get_id()+")");
+                curr_space = curr_space.get_next_space();
+            } else if (curr_space.get_space_type() == ISpace.SpaceType.HOME) {
+                do {
+                    homestr += " "+curr_space.get_color()+" home space (id "+curr_space.get_id()+")"+"----->";
+                    curr_space = curr_space.get_next_space();
+                } while (curr_space != null);
+                System.out.println(homestr);
+                curr_space = curr_space_save;
+                curr_space = curr_space.get_next_space();
+                homestr = "";
+            } else if (curr_space.get_space_type() == ISpace.SpaceType.SAFE) {
+                if (curr_space.get_next_home() != null) {
+                    homestr += "safe space points to home (id "+curr_space.get_id()+")"+"--> ";
+                    curr_space_save = curr_space;
+                    curr_space = curr_space.get_next_home();
+                } else {
+                    System.out.println("safe space (id "+curr_space.get_id()+")");
+                    curr_space = curr_space.get_next_space();
+                }
+            }
+        } while (curr_space.get_id() != this.first_space.get_id());
     }
 }

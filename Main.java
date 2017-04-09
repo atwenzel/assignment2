@@ -17,5 +17,6 @@ class Main {
         g.start();
 
         Board b = new Board();
+        b.visualizer();
     }
 }
