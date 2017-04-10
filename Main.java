@@ -1,3 +1,5 @@
+import java.util.*;
+
 class Main {
     public static void main(String argv[]) {
         Game g = Game.game;
@@ -17,6 +19,8 @@ class Main {
         g.start();
 
         Board b = new Board();
-        b.visualizer();
+        List<IMove> moves = new ArrayList<IMove>();
+        moves.add(null);
+        RuleChecker r = new RuleChecker(b, moves);
     }
 }

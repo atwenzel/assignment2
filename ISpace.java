@@ -1,3 +1,5 @@
+import java.util.Hashtable;
+
 interface ISpace {
     //data
     enum SpaceType {
@@ -22,4 +24,8 @@ interface ISpace {
     String get_color();  //get the space color
 
     int get_id();   //return the space id
+
+    Hashtable<String, Pawn> get_pawns();  //returns the Pawns
+
+    boolean has_blockade();
 }

@@ -1,4 +1,7 @@
-class HomeSpace implements ISpace {
+import java.io.*;
+import java.util.Hashtable;
+
+class HomeSpace implements ISpace, Serializable {
     //data
     public SpaceType st = ISpace.SpaceType.HOME;
     public int id;
@@ -65,5 +68,16 @@ class HomeSpace implements ISpace {
 
     public int get_id() {
         return this.id;
+    }
+
+    public Hashtable<String, Pawn> get_pawns() {
+        Hashtable<String, Pawn> pawns = new Hashtable<String, Pawn>();
+        pawns.put("pawn1", this.pawn1);
+        pawns.put("pawn2", this.pawn2);
+        return pawns;
+    }
+
+    public boolean has_blockade() {
+        return (this.pawn1 != null && this.pawn2 != null)
     }
 }

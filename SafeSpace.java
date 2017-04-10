@@ -1,4 +1,7 @@
-class SafeSpace implements ISpace {
+import java.io.*;
+import java.util.Hashtable;
+
+class SafeSpace implements ISpace, Serializable {
     //data
     public SpaceType st = ISpace.SpaceType.SAFE;
     public int id;
@@ -69,5 +72,12 @@ class SafeSpace implements ISpace {
     
     public int get_id() {
         return this.id;
+    }
+
+    public Hashtable<String, Pawn> get_pawns() {
+        Hashtable<String, Pawn> pawns = new Hashtable<String, Pawn>();
+        pawns.put("pawn1", this.pawn1);
+        pawns.put("pawn2", this.pawn2);
+        return pawns;
     }
 }
