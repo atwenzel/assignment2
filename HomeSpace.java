@@ -17,28 +17,30 @@ class HomeSpace implements ISpace, Serializable {
     }
 
     //functions
-    public boolean add_pawn(Pawn p) {
+    public Pawn add_pawn(Pawn p) {
         if (this.pawn1 == null) {
             this.pawn1 = p;
-            return true;
-        } else if (this.pawn2 == null) {
-            this.pawn2 = p;
-            return true;
+            return null;
+        } else if (this.pawn1.color.equals(p.color)){
+            this.pawn2=p;
+            return null;
         } else {
-            return false;
+            Pawn removed_pawn = remove_pawn(pawn1);
+            this.pawn1 = p;      
+            return  removed_pawn;
         }
     }
 
-    public boolean remove_pawn(Pawn p) {
+    public Pawn remove_pawn(Pawn p) {
         if (p.equals(this.pawn1)) {
             this.pawn1 = this.pawn2;
             this.pawn2 = null;
-            return true;
+            return pawn1;
         } else if (p.equals(this.pawn2)) {
-            this.pawn2 = null;
-            return true;
-        } else {
-            return false;
+            return pawn2;
+        }
+        else{
+            return null;
         }
     }
 
@@ -78,6 +80,6 @@ class HomeSpace implements ISpace, Serializable {
     }
 
     public boolean has_blockade() {
-        return (this.pawn1 != null && this.pawn2 != null)
+        return (this.pawn1 != null && this.pawn2 != null);
     }
 }

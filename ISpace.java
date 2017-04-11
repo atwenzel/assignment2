@@ -3,13 +3,13 @@ import java.util.Hashtable;
 interface ISpace {
     //data
     enum SpaceType {
-        REGULAR, SAFE, HOME;
+        REGULAR, SAFE, HOME, START;
     }
 
     //functions
-    boolean add_pawn(Pawn p);  //add a pawn to the space
+    Pawn add_pawn(Pawn p);  //add a pawn to the space
 
-    boolean remove_pawn(Pawn p);  //remove the pawn
+    Pawn remove_pawn(Pawn p);  //remove the pawn
 
     ISpace get_next_space(); //get the next space
     

@@ -19,8 +19,9 @@ class Main {
         g.start();
 
         Board b = new Board();
+        int[] dice = {5, 4};
         List<IMove> moves = new ArrayList<IMove>();
         moves.add(null);
-        RuleChecker r = new RuleChecker(b, moves);
+        RuleChecker r = new RuleChecker(b, moves, dice);
     }
 }

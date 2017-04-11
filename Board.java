@@ -1,10 +1,10 @@
-import java.util.Hashtable;
+import java.util.*;
 import java.io.*;
 
 class Board implements Serializable {
     //data
     private ISpace first_space;
-    private Hashtable<int, ISPace> spacemap;
+    private Hashtable<Integer, ISpace> spacemap;
 
     public ISpace green_entry;
     public ISpace red_entry;
@@ -20,13 +20,18 @@ class Board implements Serializable {
     public Pawn[] red_pawns;
     public Pawn[] blue_pawns;
     public Pawn[] yellow_pawns;
+
+    public int green_pawns_at_start = 4;
+    public int red_pawns_at_start = 4;
+    public int blue_pawns_at_start = 4;
+    public int yellow_pawns_at_start = 4;
     //constructor
     Board() {
         int curr_id = 0;
         ISpace last_space = null;
         ISpace curr_space = null;
         String[] colors = {"green", "red", "blue", "yellow"};
-        spacemap = new Hashtable<int, ISpace>();
+        spacemap = new Hashtable<Integer, ISpace>();
         
         green_pawns = new Pawn[4];
         red_pawns = new Pawn[4];
@@ -38,7 +43,7 @@ class Board implements Serializable {
         for (int i = 0; i < 4; i++) {
             pawn_id = 0;
             for (int j = 0; j < 4; j++) {
-                Pawn p = new Pawn(pawn_id, colors[i], -1);
+                Pawn p = new Pawn(j, colors[i], -1);
                 pawn_id++;
                 if (i == 0) {
                     green_pawns[j] = p;
@@ -51,6 +56,8 @@ class Board implements Serializable {
                 }
             }
         }
+
+        System.out.println("green pawns 2: "+green_pawns[2].id);
 
         for (int i = 0; i < 4; i++) {
             //first safe spcae
@@ -121,6 +128,101 @@ class Board implements Serializable {
         last_space.set_next_space(this.first_space);
     }  
     //functions
+    public int make_move(IMove m) {
+        System.out.println("in make_move()");
+        int bonus = 0;
+        if (m.get_type() == IMove.MoveType.ENTER) {
+            bonus += enter_piece(m);
+        } else if (m.get_type() == IMove.MoveType.REGULAR) {
+            bonus += regular_move(m);
+        } else if (m.get_type() == IMove.MoveType.HOME) {
+            bonus += home_move(m);
+        }
+        return bonus;
+    }
+
+    public int home_move(IMove m) {
+        Pawn p = m.get_pawn();
+        ISpace destination = traverse(m.get_start(), m.get_distance(), p.color);
+        ISpace current = spacemap.get(p.location);
+        current.remove_pawn(p);
+        destination.add_pawn(p);
+        p.location = destination.get_id();
+        if (destination.get_next_space() == null) {
+            return 20;
+        } else {
+            return 0;
+        }
+    }
+
+    public int regular_move(IMove m) {
+        System.out.println("in regular_move()");
+        Pawn p = m.get_pawn();
+        ISpace destination = traverse(m.get_start(), m.get_distance(), p.color);
+        ISpace current = spacemap.get(p.location);
+        current.remove_pawn(p);
+        Pawn bopped = destination.add_pawn(p);
+        p.location = destination.get_id();
+        if (bopped != null) {   
+            return_pawn(bopped);
+            return 10;
+        } else {
+            return 0;
+        }
+    }
+
+    public int enter_piece(IMove m) {
+        System.out.println("in enter_piece()");
+        Pawn p = m.get_pawn();
+        Pawn bopped = null;
+        if (p.color.equals("green")) {
+            bopped = green_entry.add_pawn(p);
+            p.location = green_entry.get_id();
+            System.out.println("green location: "+p.location);
+        } else if (p.color.equals("red")) {
+            bopped = red_entry.add_pawn(p);
+            p.location = red_entry.get_id();
+        } else if (p.color.equals("blue")) {
+            bopped = blue_entry.add_pawn(p);
+            p.location = blue_entry.get_id();
+        } else if (p.color.equals("yellow")) {
+            bopped = yellow_entry.add_pawn(p);
+            p.location = yellow_entry.get_id();
+        }
+        if (bopped != null) {
+            return_pawn(bopped);
+            return 10;
+        } else {
+            return 0;
+        }
+    }
+
+    public void return_pawn(Pawn bopped) {
+        if (bopped.color.equals("green")) {
+            green_pawns_at_start += 1;
+        } else if (bopped.color.equals("red")) {
+            red_pawns_at_start += 1;
+        } else if (bopped.color.equals("blue")) {
+            blue_pawns_at_start += 1;
+        } else if (bopped.color.equals("yellow")) {
+            yellow_pawns_at_start += 1;
+        }
+        bopped.location = -1;
+    }
+
+    public boolean pawns_at_start(String color) {
+        if (color.equals("green")) {
+            return (green_pawns_at_start > 0);
+        } else if (color.equals("red")) {
+            return (red_pawns_at_start > 0);
+        } else if (color.equals("blue")) {
+            return (blue_pawns_at_start > 0);
+        } else if (color.equals("yellow")) {
+            return (yellow_pawns_at_start > 0);
+        }
+        return false;
+    }
+
     private void set_entry(int i, ISpace entry_point) {
         if (i == 0) {
             green_entry = entry_point;
@@ -176,12 +278,17 @@ class Board implements Serializable {
     }
 
     public ISpace id_to_space(int id) {
-        return this.spacemap.get(id);
+        if (id == -1) {
+            ISpace garbage = new StartSpace();
+            return garbage;
+        } else {
+            return this.spacemap.get(id);
+        }
     }
     
     public ISpace traverse(int start, int num_hops, String color) {
         //returns the space num_hops ahead of the space at start
-        ISpace home_start;
+        ISpace home_start = null;
         if (color.equals("green")) {
             home_start = green_home_start;
         } else if (color.equals("red")) {
@@ -191,8 +298,10 @@ class Board implements Serializable {
         } else if (color.equals("yellow")) {
             home_start = yellow_home_start;
         }
+        System.out.println("start location for traverse: "+start);
         ISpace curr_space = this.spacemap.get(start);
         for (int i=start; i<start+num_hops+1; i++) {
+            System.out.println("traverse: "+curr_space.get_id());
             if (curr_space.get_id() == home_start.get_id()) {  //on this color's safe space before home
                 curr_space = curr_space.get_next_home();
             } else {
@@ -200,5 +309,32 @@ class Board implements Serializable {
             }
         }
         return curr_space;
+    }
+
+    public Hashtable<Pawn, ISpace> get_pawn_locs() {
+        Hashtable<Pawn, ISpace> pawn_locs = new Hashtable<Pawn, ISpace>();
+        for (int i=0; i<4; i++) {
+            System.out.println("get_pawn_locs: "+green_pawns[i].id);
+            pawn_locs.put(green_pawns[i], id_to_space(green_pawns[i].location));
+        }
+        for (int i=0; i<4; i++) {
+            pawn_locs.put(red_pawns[i], id_to_space(red_pawns[i].location));
+        }
+        for (int i=0; i<4; i++) {
+            pawn_locs.put(blue_pawns[i], id_to_space(blue_pawns[i].location));
+        } 
+        for (int i=0; i<4; i++) {
+            pawn_locs.put(yellow_pawns[i], id_to_space(yellow_pawns[i].location));
+        } 
+        return pawn_locs;
+    }
+
+    public List<Pawn> get_all_pawns() {
+        List<Pawn> all_pawns = new ArrayList<Pawn>();
+        all_pawns.addAll(Arrays.asList(green_pawns));
+        all_pawns.addAll(Arrays.asList(red_pawns));
+        all_pawns.addAll(Arrays.asList(blue_pawns));
+        all_pawns.addAll(Arrays.asList(yellow_pawns));
+        return all_pawns;
     }
 }
