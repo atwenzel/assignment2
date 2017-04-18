@@ -14,11 +14,13 @@ class TurnValues:
         self.die4 = -1
         self.bop_bonus = -1
         self.home_bonus = -1
-        self.die1 = dice.result[0]
-        self.die2 = dice.result[1]
-        if len(dice.result) == 4:
-            self.die3 = dice.result[2]
-            self.die4 = dice.result[3]
+        self.die1 = dice[0]
+        self.die2 = dice[1]
+        self.doubles = False
+        if len(dice) == 4:
+            self.doubles = True
+            self.die3 = dice[2]
+            self.die4 = dice[3]
 
 if __name__ == "__main__":
     print("The Turn Values class")

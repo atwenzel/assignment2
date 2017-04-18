@@ -9,8 +9,9 @@ import Player
 import SPlayer
 
 class Game:
-    self.players = []  #list of SPlayer objects
-    self.colors = ["red", "blue", "green", "yellow"]
+    def __init__(self):
+        self.players = []  #list of SPlayer objects
+        self.colors = ["red", "blue", "green", "yellow"]
 
     def register(self, player):
         """Takes a Player object registers it"""
