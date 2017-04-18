@@ -23,8 +23,22 @@ class RuleChecker:
         self.b_final = copy.deepcopy(board)
         self.dice = dice
         self.tvals = TurnValues(dice)
+        self.pawnmap = self.build_pawnmap()
+                
+    def build_pawnmap(self):
+        pawnmap = {}
+        for color in ["green", "red", "blue", "yellow"]:
+            pawnmap[color] = {}
+            for pawn, i in zip(self.b_start.pawns[color], range(4)):
+                pawnmap[color]["pawn"+str(i)] = self.b_final.pawns[color][i]
+        return pawnmap
+    
+    def map_pawn(self, pawn):
+        """Assumes pawn is from original board, returns b_final's equivalent pawn"""
+        return self.pawnmap[pawn.color]["pawn"+str(pawn.id)]
         
     def single_move_check(self, move): #boolean
+        move.pawn = self.map_pawn(move.pawn)
         if isinstance(move, EnterPiece): 
             if self.valid_enter_dice(move):
                 bonus = self.b_final.make_move(move)
@@ -130,15 +144,15 @@ class RuleChecker:
             if self.valid_enter_dice(EnterPiece(pawn)):
                 return True
             else:
-            for dice in [self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4]:
-                if dice != -1:
-                    for pawn in b_final.pawns[color]:
-                        if isinstance(b_final.spacemap[pawn.location], HomeSpace):
-                            if can_go_home(MoveHome(pawn, pawn.location, dice)):
-                                return True
-                        if isinstance(b_final.spacemap[pawn.location], RegularSpace):
-                            if valid_distance(MoveMain(pawn, pawn.location, dice)):
-                                return True
+                for dice in [self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4]:
+                    if dice != -1:
+                        for pawn in b_final.pawns[color]:
+                            if isinstance(b_final.spacemap[pawn.location], HomeSpace):
+                                if can_go_home(MoveHome(pawn, pawn.location, dice)):
+                                    return True
+                                if isinstance(b_final.spacemap[pawn.location], RegularSpace):
+                                    if valid_distance(MoveMain(pawn, pawn.location, dice)):
+                                        return True
         return False
 
     def duplicate_blockades(self):
@@ -166,7 +180,7 @@ class RuleChecker:
 
 if __name__ == "__main__":
     print("The Rule Checker")
-    board = Board(4)
+    """board = Board(4)
     dice = [4, 5]
     rc = RuleChecker(board, dice)
     print(vars(rc.tvals))
@@ -175,4 +189,19 @@ if __name__ == "__main__":
     print(rc.single_move_check(move1))
     print(vars(rc.tvals))
     print(rc.single_move_check(move2))
-    print(vars(rc.tvals))
+    print(vars(rc.tvals))"""
+    
+    b = Board(4)
+    move = EnterPiece(b.pawns["green"][0])
+    rc = RuleChecker(b, [5, 5])
+    #move = EnterPiece(rc.b_final.pawns["green"][0])
+    rc.single_move_check(move)
+    print("spaces")
+    print(b.spacemap[17].pawn1)
+    print(rc.b_final.spacemap[17].pawn1)
+    print("pawn locations")
+    print(b.pawns["green"][0].location)
+    print(rc.b_final.pawns["green"][0].location)
+    print("pawns in entry spaces")
+    print(len(b.starts["green"].pawns))
+    print(len(rc.b_final.starts["green"].pawns))

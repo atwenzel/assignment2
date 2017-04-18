@@ -210,12 +210,28 @@ class Board:
         start_space = self.starts[bopped.color]
         bopped.location = start_space.id
         start_space.add_pawn(bopped)
+        
+    def deepcopy(self):
+        """self.first_space = None  #Space
+        self.spacemap = {}  #maps integer to space
+        self.entry_spaces = {}  #maps str(color) to space
+        self.home_starts = {}  #maps str color to space (safe spaces before home rows)
+        colors = ["green", "red", "blue", "yellow"]
+        self.pawns = {}
+        self.starts = {}
+        for i in range(len(colors)):
+            self.pawns[colors[i]] = [] #list of pawns
+            self.starts[colors[i]] = None #StartSpace"""
+        new_board = Board(4)
 
 if __name__ == "__main__":
     print("The Board class")
     b = Board(4)
-    b.visualizer()
-    
+    b_new = copy.deepcopy(b)
+    move = EnterPiece(b_new.pawns["green"][0])
+    b_new.make_move(move)
+    print(b.pawns["green"][0].location)
+    print(b_new.pawns["green"][0].location)
     #s = SafeSpace(0)
     #print(isinstance(s, SafeSpace))
     #print(isinstance(s, RegularSpace))
