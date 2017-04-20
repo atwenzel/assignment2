@@ -22,9 +22,9 @@ class SafeSpace(Space):
             self.pawn2 = pawn
             return None
         else:
-            removed_pawn = self.remove_pawn(pawn1)
+            removed_pawn = self.remove_pawn(self.pawn1)
             self.pawn1 = pawn
-            return remove_pawn
+            return removed_pawn
 
     def remove_pawn(self, pawn): #Pawn
         if pawn == self.pawn1:

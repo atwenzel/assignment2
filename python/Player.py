@@ -10,11 +10,11 @@ class Player:
     def __init__(self):
         self.color = ""
 
-    def startGame(color):
+    def startGame(self, color):
         self.color = color
         print("Your color is "+self.color)
 
-    def doublesPenalty():
+    def doublesPenalty(self):
         print("You have a doubles penalty")
 
 if __name__ == "__main__":

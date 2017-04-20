@@ -15,7 +15,7 @@ class Pawn:
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self.id == other.id and self.color == other.color and self.location == other.location
+            return self.id == other.id and self.color == other.color
         return False
 
 if __name__ == "__main__":

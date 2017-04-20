@@ -102,6 +102,7 @@ class Board:
                 self.pawns[colors[i]].append(np)
             curr_color = colors[i]
             new_start_space = StartSpace(curr_id, self.pawns[curr_color], curr_color)
+            self.spacemap[new_start_space.id] = new_start_space
             for j in range(num_pawns):
                 self.pawns[curr_color][j].location = curr_id
             curr_id += 1
@@ -138,11 +139,11 @@ class Board:
         for color in self.starts.keys():
             print(color, [p.id for p in self.starts[color].pawns], self.starts[color].id)
 
-    def traverse(start, num_hops, color):  #Space
+    def traverse(self, start, num_hops, color):  #Space
         """Takes a start id, a number of hops, and a color string"""
         home_start = self.home_starts[color]
         curr_space = self.spacemap[start]
-        for i in range(start, start+num_hops+1):
+        for i in range(start, start+num_hops):
             if curr_space.id == home_start.id:
                 curr_space = curr_space.next_home  #on this color's safe space before home
             else:
@@ -176,37 +177,40 @@ class Board:
         bopped = entry_space.add_pawn(entering_pawn)
         entering_pawn.location = entry_space.id
         if bopped != None:
-            return_pawn(bopped)
-            return 10
+            self.return_pawn(bopped)
+            return 20
         else:
             return 0
 
     def regular_move(self, move):  #int (bonus)
         moving_pawn = move.pawn
-        destination = self.traverse(m.start, m.distance, moving_pawn.color)
+        destination = self.traverse(move.start, move.distance, moving_pawn.color)
+        print("performing a move from "+str(move.start)+" to "+str(destination.id)+" of distance "+str(move.distance))
         current = self.spacemap[moving_pawn.location]
         current.remove_pawn(moving_pawn)
         moving_pawn.location = destination.id
         bopped = destination.add_pawn(moving_pawn)
         if bopped != None:
-            return_pawn(bopped)
-            return 10
+            print("bopped a "+bopped.color+" pawn")
+        if bopped != None:
+            self.return_pawn(bopped)
+            return 20
         else:
             return 0
 
     def home_move(self, move):  #int (bonus)
         moving_pawn = move.pawn
-        destination = self.traverse(m.start, m.distance, moving_pawn.color)
+        destination = self.traverse(move.start, move.distance, moving_pawn.color)
         current = self.spacemap[moving_pawn.location]
         current.remove_pawn(moving_pawn)
         moving_pawn.location = destination.id
         destination.add_pawn(moving_pawn)
         if destination.next_space == None:
-            return 20
+            return 10
         else:
             return 0
 
-    def return_pawn(bopped):
+    def return_pawn(self, bopped):
         start_space = self.starts[bopped.color]
         bopped.location = start_space.id
         start_space.add_pawn(bopped)
@@ -226,13 +230,16 @@ class Board:
 
 if __name__ == "__main__":
     print("The Board class")
-    b = Board(4)
-    b_new = copy.deepcopy(b)
-    move = EnterPiece(b_new.pawns["green"][0])
-    b_new.make_move(move)
-    print(b.pawns["green"][0].location)
-    print(b_new.pawns["green"][0].location)
+    #b = Board(4)
+    #b_new = copy.deepcopy(b)
+    #move = EnterPiece(b_new.pawns["green"][0])
+    #b_new.make_move(move)
+    #print(b.pawns["green"][0].location)
+    #print(b_new.pawns["green"][0].location)
     #s = SafeSpace(0)
     #print(isinstance(s, SafeSpace))
     #print(isinstance(s, RegularSpace))
     #print(isinstance(s, HomeSpace))
+
+    b = Board(4)
+    b.visualizer()
