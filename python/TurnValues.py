@@ -12,8 +12,6 @@ class TurnValues:
         self.dice = dice
         self.die3 = -1
         self.die4 = -1
-        self.bop_bonus = -1
-        self.home_bonus = -1
         self.die1 = dice[0]
         self.die2 = dice[1]
         self.doubles = False
@@ -21,6 +19,8 @@ class TurnValues:
             self.doubles = True
             self.die3 = dice[2]
             self.die4 = dice[3]
+
+    
 
 if __name__ == "__main__":
     print("The Turn Values class")

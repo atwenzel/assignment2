@@ -4,6 +4,7 @@ Implements the RuleChecker class
 
 #Global
 import copy
+import sys
 
 #Local
 from Board import Board
@@ -17,13 +18,15 @@ from StartSpace import StartSpace
 from TurnValues import TurnValues
 
 class RuleChecker:
-    def __init__(self, board, dice):
+    def __init__(self, board, dice, color):
         """Board, Moves, dice (int list)"""
         self.b_start = board
         self.b_final = copy.deepcopy(board)
         self.dice = dice
         self.tvals = TurnValues(dice)
         self.pawnmap = self.build_pawnmap()
+        self.color = color
+        self.moves_checked = 0  #for contract - all moves must be checked before multi move check
                 
     def build_pawnmap(self):
         pawnmap = {}
@@ -38,6 +41,8 @@ class RuleChecker:
         return self.pawnmap[pawn.color]["pawn"+str(pawn.id)]
         
     def single_move_check(self, move, is_bonus_move=False): #boolean
+        if not is_bonus_move:
+            self.moves_checked += 1  #for contract - all moves must be checked before multi move check
         move.pawn = self.map_pawn(move.pawn)
         if isinstance(move, EnterPiece): 
             if self.valid_enter_dice(move):
@@ -97,7 +102,9 @@ class RuleChecker:
         return False
 
     def valid_distance(self, move): #boolean
-        if move.distance == self.tvals.die1:
+        if self.safe_space_taken(move) or self.blockade_in_path(move):
+            return False
+        elif move.distance == self.tvals.die1:
             self.tvals.die1 = -1
             return True
         elif move.distance == self.tvals.die2:
@@ -116,7 +123,7 @@ class RuleChecker:
 
     def blockade_in_path(self, move):
         for i in range(move.start+1, move.start+move.distance+1):
-            curr_space = self.b_final.spacemap[i+1]
+            curr_space = self.b_final.spacemap[i]
             if curr_space.has_blockade():
                 return True
         return False
@@ -145,32 +152,46 @@ class RuleChecker:
             return False
 
     def multi_move_check(self, moves):
+        if self.moves_checked != len(moves):  #contract - admin must check legality of all individual moves before it checks the final result
+            print("ERROR: Tried to call multi_move_check before all moves were checked individually.  Crashing")
+            sys.exit(5)
         if not self.all_dice_used():
             if self.more_valid_moves(moves):
+                print("returning false in multi_move_check fro more_valid_moves")
                 return False
+            else:
+                return True
         elif self.duplicate_blockades():
+            print("returning false in multi_move_check for duplicate blockades")
             return False
         else:
+            print("passed all cases in multi_move_check()")
             return True
 
     def all_dice_used(self):
+        print("all_dice_used", self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4)
         return self.tvals.die1 == -1 and self.tvals.die2 == -1 and self.tvals.die3 == -1 and self.tvals.die4 == -1
 
     def more_valid_moves(self, moves):
-        color = moves[0].pawn.color
+        print("starting more_valid_moves")
+        #color = moves[0].pawn.color
+        color = self.color
         for pawn in self.b_final.starts[color].pawns:
             if self.valid_enter_dice(EnterPiece(pawn)):
+                print("move_valid_moves: valid_enter_dice is True")
                 return True
-            else:
-                for dice in [self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4]:
-                    if dice != -1:
-                        for pawn in self.b_final.pawns[color]:
-                            if isinstance(self.b_final.spacemap[pawn.location], HomeSpace):
-                                if can_go_home(MoveHome(pawn, pawn.location, dice)):
-                                    return True
-                                if isinstance(self.b_final.spacemap[pawn.location], RegularSpace):
-                                    if valid_distance(MoveMain(pawn, pawn.location, dice)):
-                                        return True
+        for dice in [self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4]:
+            if dice != -1:
+                for pawn in self.b_final.pawns[color]:
+                    if isinstance(self.b_final.spacemap[pawn.location], HomeSpace):
+                        if self.can_go_home(MoveHome(pawn, pawn.location, dice)):
+                            print("more_valid_moves: can_go_home is True")
+                            return True
+                    if isinstance(self.b_final.spacemap[pawn.location], RegularSpace):
+                        if self.valid_distance(MoveMain(pawn, pawn.location, dice)):
+                            print("move_valid_moves: valid_distance is True")
+                            return True
+        print("returning false from more_valid_moves")
         return False
 
     def duplicate_blockades(self):
