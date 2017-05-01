@@ -41,30 +41,36 @@ class RuleChecker:
         return self.pawnmap[pawn.color]["pawn"+str(pawn.id)]
         
     def single_move_check(self, move, is_bonus_move=False): #boolean
-        if not is_bonus_move:
-            self.moves_checked += 1  #for contract - all moves must be checked before multi move check
+        #if not is_bonus_move:
+        self.moves_checked += 1  #for contract - all moves must be checked before multi move check
+        if is_bonus_move and move == None:
+            return not self.more_valid_bonus_moves()
         move.pawn = self.map_pawn(move.pawn)
         if isinstance(move, EnterPiece): 
             if self.valid_enter_dice(move):
                 bonus = self.b_final.make_move(move)
-                return True, bonus
+                if bonus > 0:
+                    self.tvals.bonus = bonus
+                return True
             else:
-                return False, 0
+                return False
         else:
-            if (not self.valid_pawn_to_move(move)) or (not is_bonus_move and not self.valid_distance(move)):
+            if (not self.valid_pawn_to_move(move)) or (not is_bonus_move and not self.valid_distance(move, is_bonus_move=is_bonus_move)):
                 print("no valid pawn to move or not valid distance")
-                return False, 0
+                return False
             elif self.blockade_in_path(move):
                 print("blockade")
-                return False, 0
+                return False
             elif isinstance(move, MoveMain) and self.safe_space_taken(move):
                 print("pawn in safe space")
-                return False, 0
+                return False
             elif isinstance(move, MoveHome) and not self.can_go_home(move):
                 print("can't go home")
-                return False, 0
+                return False
         bonus = self.b_final.make_move(move)
-        return True, bonus
+        if bonus > 0:
+            self.tvals.bonus = bonus
+        return True 
 
     def valid_pawn_to_move(self, move):
         #check if move.pawn is on move.start
@@ -101,9 +107,12 @@ class RuleChecker:
         print("not valid entry dice")
         return False
 
-    def valid_distance(self, move): #boolean
+    def valid_distance(self, move, is_bonus_move=False): #boolean
         if self.safe_space_taken(move) or self.blockade_in_path(move):
             return False
+        elif move.distance == self.tvals.bonus:
+            self.tvals.bonus = -1
+            return True
         elif move.distance == self.tvals.die1:
             self.tvals.die1 = -1
             return True
@@ -156,7 +165,7 @@ class RuleChecker:
             print("ERROR: Tried to call multi_move_check before all moves were checked individually.  Crashing")
             sys.exit(5)
         if not self.all_dice_used():
-            if self.more_valid_moves(moves):
+            if self.more_valid_moves():
                 print("returning false in multi_move_check fro more_valid_moves")
                 return False
             else:
@@ -172,7 +181,7 @@ class RuleChecker:
         print("all_dice_used", self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4)
         return self.tvals.die1 == -1 and self.tvals.die2 == -1 and self.tvals.die3 == -1 and self.tvals.die4 == -1
 
-    def more_valid_moves(self, moves):
+    def more_valid_moves(self):
         print("starting more_valid_moves")
         #color = moves[0].pawn.color
         color = self.color
@@ -194,27 +203,25 @@ class RuleChecker:
         print("returning false from more_valid_moves")
         return False
 
+    def more_valid_bonus_moves(self):
+        print("starting more_valid_moves")
+        #for dice in [self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4]:
+        if self.tvals.bonus != -1:
+            for pawn in self.b_final.pawns[color]:
+                if isinstance(self.b_final.spacemap[pawn.location], HomeSpace):
+                    if self.can_go_home(MoveHome(pawn, pawn.location, self.tvals.bonus)):
+                        print("more_valid_bonus_moves: can_go_home is True")
+                        return True
+                if isinstance(self.b_final.spacemap[pawn.location], RegularSpace):
+                    if self.valid_distance(MoveMain(pawn, pawn.location, self.tvals.bonus)):
+                        print("move_valid_bonus_moves: valid_distance is True")
+                        return True
+        print("returning false from more_valid_bonus_moves")
+        self.tvals.bonus = -1
+        return False
+ 
+
     def duplicate_blockades(self):
-        """orig_locs = [self.b_start.spacemap[pawn.location] for pawn in self.b_start.pawns["green"]+self.b_start.pawns["red"]+self.b_start.pawns["yellow"]+self.b_start.pawns["blue"]]
-        final_locs =[self.b_final.spacemap[pawn.location] for pawn in self.b_final.pawns["green"]+self.b_final.pawns["red"]+self.b_final.pawns["yellow"]+self.b_final.pawns["blue"]]
-        orig_pawns = self.b_start.pawns["green"]+self.b_start.pawns["red"]+self.b_start.pawns["yellow"]+self.b_start.pawns["blue"]
-        final_pawns = self.b_final.pawns["green"]+self.b_final.pawns["red"]+self.b_final.pawns["yellow"]+self.b_final.pawns["blue"]
-        for orig_pawn in orig_pawns:
-            for final_pawn in final_pawns:
-                orig_loc = self.b_final.spacemap[orig_pawn.location]
-                final_loc = self.b_final.spacemap[final_pawn.location]
-                if not isinstance(orig_loc, StartSpace) and not isinstance(final_loc, StartSpace):
-                    if orig_loc.has_blockade():
-                        if final_loc.has_blockade():
-                            orig_loc_pawns = orig_loc.get_pawns()
-                            final_loc_pawns = final_loc.get_pawns()
-                            orig_pawn_1 = orig_loc_pawns["pawn1"]
-                            orig_pawn_2 = orig_loc_pawns["pawn2"]
-                            final_pawn_1 = final_loc_pawns["pawn1"]
-                            final_pawn_2 = final_loc_pawns["pawn2"]
-                            if (orig_pawn_1 == final_pawn_1 or orig_pawn_1 == final_pawn_2) and (orig_pawn_2 == final_pawn_1 or orig_pawn_2 == final_pawn_2):
-                                return True
-        return False"""
         final_pawns = self.b_final.pawns["green"]+self.b_final.pawns["red"]+self.b_final.pawns["yellow"]+self.b_final.pawns["blue"]
         pawn_to_follow = self.b_final.pawns["blue"][1]
         for pawn in final_pawns:

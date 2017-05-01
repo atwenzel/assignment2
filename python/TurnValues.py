@@ -15,6 +15,7 @@ class TurnValues:
         self.die1 = dice[0]
         self.die2 = dice[1]
         self.doubles = False
+        self.bonus = -1
         if len(dice) == 4:
             self.doubles = True
             self.die3 = dice[2]

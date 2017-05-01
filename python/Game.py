@@ -54,7 +54,7 @@ class Game:
                     moves = player.doMove(self.board, new_dice)
                     rc = RuleChecker(self.board, new_dice, player.color)
                     for move in moves:
-                        if not self.is_active(player.color):
+                        """if not self.is_active(player.color):
                             break
                         valid, bonus = rc.single_move_check(move)
                         #player legal move contract
@@ -64,11 +64,27 @@ class Game:
                         while bonus != 0:
                             #contract - forces players to keep making bonus moves
                             #until they have 0 bonus value
-                            bonus_move = self.player.doMove(rc.b_final, [bonus])
+                            bonus_move = self.player.do_bonus_move(rc.b_final, bonus)
                             valid, bonus = rc.single_move_check(bonus_move, is_bonus_move=True)
                             if not valid:
                                 self.eliminate_player(player)
+                                break"""
+                        #if tvals.bonus not -1
+                            #move.distance == tvals.bonus otherwise error
+                            #rc.single_move_check(move, is_bonus_move=True)
+                        #else
+                            #move check, bonus=False
+                        if rc.tvals.bonus != -1:  #we expect a bonus move
+                            if move.distance != rc.tvals.bonus:
+                                self.eliminate_player(player)
                                 break
+                            else:
+                                valid = rc.single_move_check(move, is_bonus_move=True)
+                        else:
+                            valid = rc.single_move_check(move)
+                        if not valid:
+                            self.eliminate_player(player)
+                            break
                     if not self.is_active(player.color):
                         continue
                     else:

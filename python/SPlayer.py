@@ -41,26 +41,9 @@ class SPlayer:
             print("player was given "+str(len(dice))+" dice, expected 2 or 4")
             sys.exit(2)  #game crashes
         moves = self.player.doMove(board, dice)
-        """self.rc = RuleChecker(board, dice) 
-        for move in moves:
-            print(str(move.pawn.location) + " before move")
-            valid, bonus = self.rc.single_move_check(move)
-            print(str(move.pawn.location) + " after move")
-            if not valid:
-                return None
-            while bonus != 0:
-                bonus_move = self.player.doMove(self.rc.b_final, [bonus])
-                print(vars(bonus_move))
-                valid, bonus = self.rc.single_move_check(bonus_move, is_bonus_move=True)
-                print(str(move.pawn.location)+" after bonus")
-        if self.rc.multi_move_check(moves):
-            return moves
-        else:
-            print("multi move check failed")
-            return None"""
         return moves
 
-    def bonus_move(self, board, bonus_val):
+    def do_bonus_move(self, board, bonus_val):
         move = self.player.doMove(board, [bonus_val])
         return move
 
