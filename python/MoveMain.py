@@ -14,5 +14,10 @@ class MoveMain(Move):
         self.start = start
         self.distance = distance
 
+    def __eq__(self, other):
+        if other == None:
+            return False
+        return self.pawn == other.pawn and self.start == other.start and self.distance == other.distance
+
 if __name__ == "__main__":
     print("The MoveMain class")

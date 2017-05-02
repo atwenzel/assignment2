@@ -17,7 +17,7 @@ from StartSpace import StartSpace
 from Test import Tester
 from RuleChecker import RuleChecker
 
-class MoveFirstPawn(Player):
+class MoveLastPawn(Player):
     def __init__(self, color):
         Player.__init__(self)
         self.color = color
@@ -31,7 +31,7 @@ class MoveFirstPawn(Player):
         for pawn in pawns:
             rel_pawn_loc = board.get_relative_pos(pawn.location, self.color)
             relative_locs[rel_pawn_loc] = pawn
-        for rel_loc in sorted(relative_locs.keys(), reverse=True):
+        for rel_loc in sorted(relative_locs.keys()):
             sorted_pawns.append(relative_locs[rel_loc])
         return sorted_pawns
 
@@ -89,21 +89,23 @@ if __name__ == "__main__":
     print("=====Player chooses to enter with first move given a 5=====")
     board = Board(4)
     dice = [5, 1]
-    player = MoveFirstPawn("green")
+    player = MoveLastPawn("green")
     moves = player.doMove(board, dice)
     t.check(isinstance(moves[0], EnterPiece), "player's first move wasn't an EnterPiece")
     t.check(moves[1].start == 17 and moves[1].distance == 1, "player's second move wasn't correct: "+str(vars(moves[1])))
 
-    #Player chooses to move the furthest ahead of two pawns twice
+    #Player chooses to move the furthest behind of two pawns twice
     print("=====Player chooses to move the furthest ahead fo two pawns twice=====")
     board = Board(4)
     ahead_pawn = t.pawn_sim(board, "green", 0, 21)
     behind_pawn = t.pawn_sim(board, "green", 1, 18)
+    far_ahead1 = t.pawn_sim(board, "green", 2, 40)
+    far_ahead2 = t.pawn_sim(board, "green", 3, 40)
     dice = [2, 3]
-    player = MoveFirstPawn("green")
+    player = MoveLastPawn("green")
     moves = player.doMove(board, dice)
-    t.check(moves[0].start == 21, "player didn't choose the furthest ahead pawn")
-    t.check(moves[1].start == 23, "player didn't choose the furthest ahead pawn OR pawn didn't move correctly")
+    t.check(moves[0].start == 18, "player didn't choose the furthest behind pawn")
+    t.check(moves[1].start == 20, "player didn't choose the furthest behind pawn OR pawn didn't move correctly")
 
     #player bops a pawn and takes a bonus
     print("=====Player bops a pawn and takes a bonus=====")
@@ -111,7 +113,7 @@ if __name__ == "__main__":
     pawn_to_bop = t.pawn_sim(board, "yellow", 0, 21)
     bopping_pawn = t.pawn_sim(board, "green", 0, 20)
     dice = [1, 2]
-    player = MoveFirstPawn("green")
+    player = MoveLastPawn("green")
     moves = player.doMove(board, dice)
     t.check(len(moves) == 3, "player didn't return 3 moves, gave "+str(len(moves)))
     t.check(sum([move.distance for move in moves]) == 23, "player didn't move 1 + 20 + 2")
@@ -120,20 +122,23 @@ if __name__ == "__main__":
     print("=====Player moves all four with doubles=====")
     board = Board(4)
     pawn_to_move = t.pawn_sim(board, "green", 0, 17)
+    far_ahead1 = t.pawn_sim(board, "green", 1, 40)
+    far_ahead2 = t.pawn_sim(board, "green", 2, 41)
+    far_ahead3 = t.pawn_sim(board, "green", 3, 42)
     dice = [2, 2, 5, 5]
-    player = MoveFirstPawn("green")
+    player = MoveLastPawn("green")
     moves = player.doMove(board, dice)
     t.check(sum([move.distance for move in moves]) == 14, "player didn't move 2 + 2 + 5 + 5")
 
-    #player moves behind pawn because first is blocked
+    #player moves ahead pawn because behind is blocked
     print("=====player moves behind pawn because first is blocked=====")
     board = Board(4)
-    blockade1 = t.pawn_sim(board, "yellow", 0, 23)
-    blockade2 = t.pawn_sim(board, "yellow", 1, 23)
+    blockade1 = t.pawn_sim(board, "yellow", 0, 20)
+    blockade2 = t.pawn_sim(board, "yellow", 1, 20)
     ahead_pawn = t.pawn_sim(board, "green", 0, 21)
     behind_pawn = t.pawn_sim(board, "green", 1, 18)
     dice = [1, 2]
-    player = MoveFirstPawn("green")
+    player = MoveLastPawn("green")
     moves = player.doMove(board, dice)
-    t.check(moves[0].pawn.id == 0, "player didn't move the ahead pawn when it could before it was blocked")
-    t.check(moves[1].pawn.id == 1, "player didn't move the behind pawn when the ahead pawn was blocked")
+    t.check(moves[0].pawn.id == 1, "player didn't move the ahead pawn when it could before it was blocked")
+    t.check(moves[1].pawn.id == 0, "player didn't move the behind pawn when the ahead pawn was blocked")

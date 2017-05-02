@@ -150,6 +150,19 @@ class Board:
                 curr_space = curr_space.next_space
         return curr_space
 
+    def get_relative_pos(self, stop_id, color):
+        distance = 0
+        home_start = self.home_starts[color]
+        entry_space = self.starts[color]
+        curr_space = entry_space
+        while curr_space.id != stop_id:
+            if curr_space.id == home_start.id:
+                curr_space = curr_space.next_home
+            else:
+                curr_space = curr_space.next_space
+            distance += 1
+        return distance
+
     def id_to_space(s_id): #Space
         """Takes a space ID"""
         try:
@@ -214,7 +227,7 @@ class Board:
         start_space = self.starts[bopped.color]
         bopped.location = start_space.id
         start_space.add_pawn(bopped)
-        
+       
     def deepcopy(self):
         """self.first_space = None  #Space
         self.spacemap = {}  #maps integer to space
@@ -242,4 +255,6 @@ if __name__ == "__main__":
     #print(isinstance(s, HomeSpace))
 
     b = Board(4)
+    #print(b.get_relative_pos(17, "green") == 1)
+    #print(b.get_relative_pos(19, "green") == 3)
     b.visualizer()

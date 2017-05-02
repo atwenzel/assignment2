@@ -16,13 +16,14 @@ from SPlayer import SPlayer
 
 class Tester:
     def __init__(self):
-        self.enter_tests()
-        self.basic_tests()
-        self.bopping()
-        self.blockade()
-        self.exit_row()
-        self.game_loop()
-        self.complete_move()
+        #self.enter_tests()
+        #self.basic_tests()
+        #self.bopping()
+        #self.blockade()
+        #self.exit_row()
+        #self.game_loop()
+        #self.complete_move()
+        print("init tester")
 
     def check(self, boolean, string):
         if not boolean:
@@ -58,6 +59,18 @@ class Tester:
         #if valid:
         #    print(rc.multi_move_check(moves))
         return valid and rc.multi_move_check(moves)
+
+    def pawn_sim(self, board, color, pawnid, newpos):
+        """Does the equivalent of 
+            pawn_to_bop1 = board.pawns[color][pawnid]
+            board.starts[color].remove_pawn(pawn_to_bop1)
+            board.spacemap[newpos].add_pawn(pawn_to_bop1)
+            pawn_to_bop1.location = newpos"""
+        pawn = board.pawns[color][pawnid]
+        board.starts[color].remove_pawn(pawn)
+        board.spacemap[newpos].add_pawn(pawn)
+        pawn.location = newpos
+        return pawn
 
     def enter_tests(self):
         #enter with 1, 4
@@ -954,3 +967,10 @@ class Tester:
 if __name__ == "__main__":
     print("Testing...")
     t = Tester()
+    t.enter_tests()
+    t.basic_tests()
+    t.bopping()
+    t.blockade()
+    t.exit_row()
+    t.game_loop()
+    t.complete_move()
