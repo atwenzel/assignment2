@@ -47,51 +47,57 @@ class Game:
         while self.have_winner() == None and not self.all_eliminated():
             for player in self.players:
                 if self.is_active(player.color):
-                    if override_dice != []:
-                        new_dice = override_dice
-                    else:
-                        new_dice = Dice().result
-                    moves = player.doMove(self.board, new_dice)
-                    rc = RuleChecker(self.board, new_dice, player.color)
-                    for move in moves:
-                        """if not self.is_active(player.color):
-                            break
-                        valid, bonus = rc.single_move_check(move)
-                        #player legal move contract
-                        if not valid:
-                            self.eliminate_player(player)
-                            break
-                        while bonus != 0:
-                            #contract - forces players to keep making bonus moves
-                            #until they have 0 bonus value
-                            bonus_move = self.player.do_bonus_move(rc.b_final, bonus)
-                            valid, bonus = rc.single_move_check(bonus_move, is_bonus_move=True)
+                    doubles = True
+                    doubles_count = 0
+                    while doubles:
+                        if override_dice != []:
+                            new_dice = override_dice
+                        else:
+                            new_dice = Dice().result
+                        if len(new_dice) == 4:
+                            print("Game::start: player has a double")
+                            print("Game::start: current double count: "+str(doubles_count))
+                            doubles_count += 1
+                            if doubles_count == 3:
+                                player.doublesPenalty()
+                                self.move_back_furthest_pawn(player.color)
+                                return ##debugging
+                                break
+                            if not self.board.all_out(player.color):
+                                new_dice = new_dice[:2]
+                        elif len(new_dice) == 2:
+                            doubles = False
+                        moves = player.doMove(self.board, new_dice)
+                        rc = RuleChecker(self.board, new_dice, player.color)
+                        for move in moves:
+                            try:
+                                is_bonus = move.distance in rc.tvals.bonus
+                            except AttributeError:  #is an EnterPiece
+                                is_bonus = False
+                            valid = rc.single_move_check(move, is_bonus_move=is_bonus)
                             if not valid:
                                 self.eliminate_player(player)
-                                break"""
-                        #if tvals.bonus not -1
-                            #move.distance == tvals.bonus otherwise error
-                            #rc.single_move_check(move, is_bonus_move=True)
-                        #else
-                            #move check, bonus=False
-                        if rc.tvals.bonus != -1:  #we expect a bonus move
-                            if move.distance != rc.tvals.bonus:
-                                self.eliminate_player(player)
                                 break
-                            else:
-                                valid = rc.single_move_check(move, is_bonus_move=True)
-                        else:
-                            valid = rc.single_move_check(move)
-                        if not valid:
-                            self.eliminate_player(player)
-                            break
-                    if not self.is_active(player.color):
-                        continue
-                    else:
-                        if not rc.multi_move_check(moves):
-                            self.eliminate_player(player)
+                        if not self.is_active(player.color):
                             continue
-                    self.board = rc.b_final
+                        else:
+                            if not rc.multi_move_check(moves):
+                                self.eliminate_player(player)
+                                continue
+                        self.board = rc.b_final
+
+    def move_back_furthest_pawn(self, color):
+        """Takes color's furthest ahead pawn that is not at home and
+        returns it to start space"""
+        sorted_pawns = self.board.order_pawns(color)
+        for pawn in sorted_pawns:
+            if pawn.location == self.board.finishes[color]:
+                continue
+            else:
+                pawn_space = self.board.spacemap[pawn.location]
+                pawn_space.remove_pawn(pawn)
+                self.board.spacemap[self.board.starts[color].id].add_pawn(pawn)
+                pawn.location = self.board.starts[color].id
 
     def eliminate_player(self, player):
         self.status[player.color]['active'] = False

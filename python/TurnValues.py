@@ -23,13 +23,13 @@ class TurnValues:
             self.die4 = dice[3]
 
     def get_all_dice(self):
-        return [die for die in self.dice+[self.bonus] if die != -1]  #TODO: change bonus to a list
-        #return [die for die in self.dice+self.bonus if die != -1]
+        #return [die for die in self.dice+[self.bonus] if die != -1]  #TODO: change bonus to a list
+        return [die for die in self.dice+self.bonus if die != -1]
     
     def get_highest_die(self):
-        return max([self.die3, self.die4, self.die1, self.die2, self.bonus])
+        #return max([self.die3, self.die4, self.die1, self.die2, self.bonus])
         #when bonus is a list, return max([self.die3, self.die4, self.die1, self.die2, max(self.bonus)])
-        #return max([self.die3, self.die4, self.die1, self.die2, max(self.bonus)])
+        return max([self.die3, self.die4, self.die1, self.die2, max(self.bonus)])
 
 if __name__ == "__main__":
     print("The Turn Values class")

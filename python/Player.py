@@ -32,7 +32,7 @@ class Player:
         """Returns if move is valid"""       
         local_rc = copy.deepcopy(rc)
         valid = local_rc.single_move_check(move)
-        if valid and not local_rc.duplicate_blockades():
+        if valid and not local_rc.duplicate_blockades(local_rc.b_start, local_rc.b_final):
             return True, local_rc
         else:
             return False, rc

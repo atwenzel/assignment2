@@ -9,6 +9,8 @@ from Board import Board
 from CPlayer import CPlayer
 from EnterPiece import EnterPiece
 from Game import Game
+from Player import Player
+from MoveFirstPawn import MoveFirstPawn
 from MoveHome import MoveHome
 from MoveMain import MoveMain
 from RuleChecker import RuleChecker
@@ -48,7 +50,7 @@ class Tester:
     def apply_moves(self, rc, moves):
         valid = True
         for move in moves:
-            if rc.tvals.bonus == move.distance:
+            if rc.tvals.bonus == [move.distance]:
                 valid = rc.single_move_check(move, is_bonus_move=True)
             else:
                 valid = rc.single_move_check(move)
@@ -83,7 +85,7 @@ class Tester:
         moved_pawn = rc.b_final.pawns["green"][0]
         #print(moved_pawn.id)
         self.check(valid, "1, 4 failed as invalid")
-        self.check(rc.tvals.bonus == -1, "1, 4 bonus wasn't -1")
+        self.check(rc.tvals.bonus == [], "1, 4 bonus wasn't []")
         self.check(moved_pawn.location == rc.b_final.entry_spaces["green"].id, "1, 4 pawn location didn't change")
         #print(rc.b_final.pawns["green"][0].id)
         #print(moved_pawn.location, rc.b_final.entry_spaces["green"].id)
@@ -103,7 +105,7 @@ class Tester:
         valid = rc.single_move_check(move)
         moved_pawn = rc.b_final.pawns["green"][0]
         self.check(valid, "2, 3 failed as invalid")
-        self.check(rc.tvals.bonus == -1, "2, 3 bonus wasn't -1")
+        self.check(rc.tvals.bonus == [], "2, 3 bonus wasn't []")
         self.check(moved_pawn.location == rc.b_final.entry_spaces["green"].id, "2, 3 pawn location didn't change")
         self.check(rc.b_final.entry_spaces["green"].pawn1 == moved_pawn, "2, 3 pawn not moved to entry space")
     
@@ -115,7 +117,7 @@ class Tester:
         valid = rc.single_move_check(move)
         moved_pawn = rc.b_final.pawns["green"][0]
         self.check(not valid, "1, 2 was allowed to move")
-        self.check(rc.tvals.bonus == -1, "1, 2 bonus wasn't -1")
+        self.check(rc.tvals.bonus == [], "1, 2 bonus wasn't []")
         self.check(moved_pawn.location != rc.b_final.entry_spaces["green"].id, "1, 2 pawn location changed")
         self.check(rc.b_final.entry_spaces["green"].pawn1 != moved_pawn, "1, 2 pawn moved to entry space")
 
@@ -127,7 +129,7 @@ class Tester:
         valid = rc.single_move_check(move)
         moved_pawn = rc.b_final.pawns["green"][0]
         self.check(valid, "5, 5 move 1 failed as invalid")
-        self.check(rc.tvals.bonus == -1, "5, 5 move 1 bonus wasn't 0")
+        self.check(rc.tvals.bonus == [], "5, 5 move 1 bonus wasn't []")
         self.check(moved_pawn.location == rc.b_final.entry_spaces["green"].id, "5, 5 pawn 1 location didn't change")
         self.check(rc.b_final.entry_spaces["green"].pawn1 == moved_pawn, "5, 5 pawn 1 not moved to entry space")
         pawn_to_move = board.pawns["green"][1]
@@ -135,7 +137,7 @@ class Tester:
         valid = rc.single_move_check(move)
         moved_pawn = rc.b_final.pawns["green"][1]
         self.check(valid, "5, 5 move 2 failed as invalid")
-        self.check(rc.tvals.bonus == -1, "5, 5 move 2 bonus wasn't 0")
+        self.check(rc.tvals.bonus == [], "5, 5 move 2 bonus wasn't[]")
         self.check(moved_pawn.location == rc.b_final.entry_spaces["green"].id, "5, 5 pawn 2 location didn't change")
         self.check(rc.b_final.entry_spaces["green"].pawn2 == moved_pawn, "5, 5 pawn 2 not moved to entry space")
 
@@ -151,7 +153,7 @@ class Tester:
         move = MoveMain(pawn_to_move, 18, 2)
         valid = rc.single_move_check(move)
         self.check(valid, "moving a piece failed as invalid")
-        self.check(rc.tvals.bonus == -1, "moving a piece bonus wasn't 0")
+        self.check(rc.tvals.bonus == [], "moving a piece bonus wasn't []")
         moved_pawn = rc.b_final.pawns["green"][0]
         self.check(moved_pawn.location == 20, "moving a piece pawn isn't on 20")
         self.check(rc.b_final.spacemap[20].pawn1 == moved_pawn, "moving a piece pawn not location 20")
@@ -167,7 +169,7 @@ class Tester:
         valid = rc.single_move_check(move)
         moved_pawn = rc.b_final.pawns["green"][0]
         self.check(valid, "moving a piece failed as invalid")
-        self.check(rc.tvals.bonus == -1, "moving a piece bonus wasn't 0")
+        self.check(rc.tvals.bonus == [], "moving a piece bonus wasn't []")
         self.check(moved_pawn.location == 6, "moving into home row pawn isn't on 6")
         self.check(rc.b_final.spacemap[6].pawn1 == moved_pawn, "moving into home row  pawn not location 6")
     
@@ -182,7 +184,7 @@ class Tester:
         valid = rc.single_move_check(move)
         moved_pawn = rc.b_final.pawns["green"][0]
         self.check(valid, "moving on a home row failed as invalid")
-        self.check(rc.tvals.bonus == -1, "moving a piece bonus wasn't 0")
+        self.check(rc.tvals.bonus == [], "moving a piece bonus wasn't []")
         self.check(moved_pawn.location == 8, "moving on a home row location not 8")
         self.check(rc.b_final.spacemap[8].pawn1 == moved_pawn, "moving on a home row pawn not location 8")
 
@@ -198,9 +200,9 @@ class Tester:
         valid = rc.single_move_check(move)
         moved_pawn = rc.b_final.pawns["green"][0]
         self.check(valid, "moving a piece failed as invalid")
-        self.check(rc.tvals.bonus == 10, "moving to home bonus wasn't 10")
+        self.check(rc.tvals.bonus == [10], "moving to home bonus wasn't [10]")
         self.check(moved_pawn.location == 12, "moving to home location not 12")
-        self.check(rc.b_final.spacemap[12].pawn1 == moved_pawn, "moving a piece pawn not location 12")
+        self.check(rc.b_final.spacemap[12].pawns[0] == moved_pawn, "moving a piece pawn not location 12")
  
         ##cannot move if no piece present
         print("=====cannot move if no piece present=====")
@@ -210,7 +212,7 @@ class Tester:
         move = MoveMain(pawn_to_move, 18, 2)
         valid = rc.single_move_check(move)
         self.check(not valid, "cannot move if no piece - move was valid")
-        self.check(rc.tvals.bonus == -1, "moving a piece bonus wasn't 0")
+        self.check(rc.tvals.bonus == [], "moving a piece bonus wasn't []")
 
     def bopping(self):
         ## bopping a piece and getting a bonus
@@ -232,7 +234,7 @@ class Tester:
         pawn_to_move_final = rc.b_final.pawns["green"][0]
         second_pawn_final = rc.b_final.pawns["red"][0]
         self.check(valid, "moving a piece failed as invalid")
-        self.check(rc.tvals.bonus == 20, "bopping - bonus wasn't 20")
+        self.check(rc.tvals.bonus == [20], "bopping - bonus wasn't [20]")
         self.check(pawn_to_move_final.location == rc.b_final.starts["green"].id, "bopped pawn wasn't sent home")
         self.check(rc.b_final.spacemap[18].pawn1 == second_pawn_final, "bopping pawn didn't move to space 18")
         self.check(second_pawn_final.location == 18, "seocnd pawn didn't move to 18")
@@ -255,7 +257,7 @@ class Tester:
         self.check(second_pawn_final.location == rc.b_final.starts["red"].id, "bop on enter: red pawn not returned to start space")
         self.check(enter_piece_final.location==17, "bop on enter: enter piece not on enter space, is actually at "+str(enter_piece_final.location))
         self.check(valid, "bop on enter failed as invalid")
-        self.check(rc.tvals.bonus == 20, "bopping - bonus wasn't 20")
+        self.check(rc.tvals.bonus == [20], "bopping - bonus wasn't [20]")
         
         ##bopping on a safety
         print("")
@@ -274,7 +276,7 @@ class Tester:
         rc = RuleChecker(board, [1, 3], "red")
         valid = rc.single_move_check(move)
         self.check(not valid, "invalid bopping was valid")
-        self.check(rc.tvals.bonus == -1, "invalid bopping - bonus wasn't 0")
+        self.check(rc.tvals.bonus == [], "invalid bopping - bonus wasn't []")
 
         ##bop two pieces
         print("")
@@ -451,7 +453,7 @@ class Tester:
         valid = rc.single_move_check(move)
         
         self.check(not valid, "invalid enter onto a blockade is valid")
-        self.check(rc.tvals.bonus==-1, "bonus for enter onto a blockade isn't 0")
+        self.check(rc.tvals.bonus==[], "bonus for enter onto a blockade isn't []")
 
         ##can form a blockade but cannot add a third piece
         print("=====can form a blockade but cannot add a third piece=====""")
@@ -750,7 +752,7 @@ class Tester:
         move = MoveMain(pawn_to_move, 2, 4)
         valid= rc.single_move_check(move)
         self.check(valid, "moving a piece failed as invalid")
-        self.check(rc.tvals.bonus == -1, "moving a piece bonus wasn't 0")
+        self.check(rc.tvals.bonus == [], "moving a piece bonus wasn't []")
         self.check(rc.b_final.pawns["green"][0].location == 6, "moving into home row pawn isn't on 6")
         self.check(rc.b_final.spacemap[6].pawn1 == rc.b_final.pawns["green"][0], "moving into home row  pawn not location 6")
  
@@ -940,7 +942,8 @@ class Tester:
         blockade_pawn_1.location = 13
          
         moves = [
-            MoveMain(bopping_pawn, 4, 2)
+            MoveMain(bopping_pawn, 4, 2),
+            MoveMain(bopping_pawn, 13, 1)
         ]
 
         rc = RuleChecker(board, [2, 1], "yellow")
@@ -949,9 +952,62 @@ class Tester:
 
         self.check(res == True, "player was not allowed to skip their bonus because there was no move to take")
 
+        #go home but don't take 10
+        print("=====go home but don't take 10=====")
+        board = Board(4)
+        to_move_home = self.pawn_sim(board, "green", 0, 11)
+
+        moves = [
+            MoveHome(to_move_home, 11, 1)
+        ]
+
+        rc = RuleChecker(board, [2, 1], "green")
+
+        res = self.apply_moves(rc, moves)
+        
+        self.check(res == True, "player wasn't allowed to skip 10 bonus with no moves to take")
+
+        #can't take any more moves because they would move a blockade
+        print("=====can't take any more moves because they would move a blockade=====")
+        blockade1 = self.pawn_sim(board, "yellow", 0, 3)
+        blockade2 = self.pawn_sim(board, "yellow", 1, 3)
+        blockade3 = self.pawn_sim(board, "green", 0, 18)
+        blockade4 = self.pawn_sim(board, "green", 1, 18)
+
+        moves = [
+            MoveMain(blockade1, 3, 1),
+            MoveMain(blockade2, 3, 1),
+            MoveMain(blockade1, 4, 6)
+        ]
+
+        rc = RuleChecker(board, [1, 1, 6, 6], "yellow")
+        
+        res = self.apply_moves(rc, moves)
+        
+        self.check(res == True, "player wasn't allowed to skip because it would move a blockade")
+
+        #a third piece can go home
+        print("=====a third piece can go home=====")
+        board = Board(4)
+        already_home_1 = self.pawn_sim(board, "green", 0, 12)
+        already_home_2 = self.pawn_sim(board, "green", 1, 12)
+        to_move_home = self.pawn_sim(board, "green", 2, 11)
+
+        moves = [
+            MoveHome(to_move_home, 11, 1)
+        ]
+
+        rc = RuleChecker(board, [2, 1], "green")
+
+        print("to_move_home location before moves: ", rc.b_final.pawns["green"][2].location)
+        
+        res = self.apply_moves(rc, moves)
+        
+        self.check(res == True, "player wasn't allowed to move a third piece home")
+
     def game_loop(self):
         #player is deactivated after cheating
-        print("=====player is deactivated after cheating=====")
+        """print("=====player is deactivated after cheating=====")
         game = Game()
         moves = [
             EnterPiece(game.board.pawns["red"][0])
@@ -961,8 +1017,23 @@ class Tester:
         game.register(cplayer)
         game.start(override_dice=[4, 3])
         
-        self.check(game.status["red"]["active"] == False, "red player is still active after cheating")
-        
+        self.check(game.status["red"]["active"] == False, "red player is still active after cheating")"""
+
+        #player gets bonus penalty
+        print("=====player gets bonus penalty=====")
+        game = Game()
+        player = MoveFirstPawn("red")
+        game.register(player)
+        game.start(override_dice=[5, 5, 2, 2])
+
+        #print(game.board.pawns["red"][0].location)
+        self.check(game.board.pawns["red"][0].location == game.board.starts["red"].id, "a pawn wasn't moved back because of doubles (at: "+str(game.board.pawns["red"][0].location))
+        #print(game.board.pawns["red"][1].location)
+        self.check(game.board.pawns["red"][1].location == game.board.starts["red"].id, "a pawn wasn't moved back because of doubles (at: "+str(game.board.pawns["red"][1].location))
+        #print(game.board.pawns["red"][2].location)
+        self.check(game.board.pawns["red"][2].location == game.board.starts["red"].id, "a pawn wasn't moved back because of doubles (at: "+str(game.board.pawns["red"][2].location))
+        #print(game.board.pawns["red"][3].location)
+        self.check(game.board.pawns["red"][3].location == game.board.starts["red"].id, "a pawn wasn't moved back because of doubles (at: "+str(game.board.pawns["red"][3].location))
 
 if __name__ == "__main__":
     print("Testing...")

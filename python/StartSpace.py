@@ -32,5 +32,8 @@ class StartSpace(Space):
                 return True
         return False
 
+    def has_blockade(self, pawn):
+        return False
+
 if __name__ == "__main__":
     print("Start Space")

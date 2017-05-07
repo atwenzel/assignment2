@@ -23,7 +23,7 @@ class SPlayer:
         the game"""
         #player-side color contract
         if color not in ["green", "red", "blue", "yellow"]:
-            print("player was not told a valid color")
+            print("Splayer::startGame: player was not told a valid color")
             sys.exit(1)  #game crashes
         self.color = color
         self.player.startGame(self.color)
@@ -34,11 +34,11 @@ class SPlayer:
         list (dice) and executes a move"""
         #started contract
         if not self.started:
-            print("ERROR: doMove() called before the game started, crashing")
+            print("SPlayer::doMove: ERROR: doMove() called before the game started, crashing")
             sys.exit(4)
         #player-side dice contract
         if len(dice) != 2 and len(dice) != 4:
-            print("player was given "+str(len(dice))+" dice, expected 2 or 4")
+            print("SPlayer::doMove: player was given "+str(len(dice))+" dice, expected 2 or 4")
             sys.exit(2)  #game crashes
         moves = self.player.doMove(board, dice)
         return moves
@@ -49,6 +49,6 @@ class SPlayer:
 
     def doublesPenalty(self):  #None
         if not self.started:  #started contract
-            print("ERROR: doublesPenalty() called before the game started, crashing")
+            print("SPlayer::doublesPenalty: ERROR: doublesPenalty() called before the game started, crashing")
             sys.exit(3)
         self.player.doublesPenalty()

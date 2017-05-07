@@ -8,6 +8,7 @@ import sys
 
 #Local
 from EnterPiece import EnterPiece
+from FinalSpace import FinalSpace
 from HomeSpace import HomeSpace
 from MoveHome import MoveHome
 from MoveMain import MoveMain
@@ -26,9 +27,11 @@ class Board:
         colors = ["green", "red", "blue", "yellow"]
         self.pawns = {}
         self.starts = {}
+        self.finishes = {}
         for i in range(len(colors)):
             self.pawns[colors[i]] = [] #list of pawns
             self.starts[colors[i]] = None #StartSpace
+            self.finishes[colors[i]] = None  #end spaces
         curr_id = 0
         last_space = None
         curr_space = None
@@ -60,8 +63,8 @@ class Board:
             last_space = curr_space
             #save the safe space that connects to home
             safe_space_save = curr_space
-            #build the 7 home spaces with appropriate color
-            for j in range(7):
+            #build the 6 home spaces with appropriate color
+            for j in range(6):
                 curr_space = HomeSpace(curr_id, colors[i])
                 self.spacemap[curr_id] = curr_space
                 curr_id += 1
@@ -70,6 +73,12 @@ class Board:
                 else:
                     last_space.next_space = curr_space
                 last_space = curr_space
+            #build the final space
+            curr_space = FinalSpace(curr_id, colors[i])
+            self.spacemap[curr_id] = curr_space
+            self.finishes[colors[i]] = curr_id
+            curr_id += 1
+            last_space.next_space = curr_space
             #retrieve saved space
             last_space = safe_space_save  
             #build four regular spaces up to entry point
@@ -118,14 +127,14 @@ class Board:
                 print("regular space (id "+str(curr_space.id)+")")
                 curr_space = curr_space.next_space
             elif isinstance(curr_space, HomeSpace):
-                while True:
+                while not isinstance(curr_space, FinalSpace):
                     homestr += " "+curr_space.color+" home space (id "+str(curr_space.id)+")----------->"
                     curr_space = curr_space.next_space
-                    if curr_space == None:
-                        break
-                print(homestr)
-                curr_space = curr_space_save.next_space
-                homestr = ""
+                    #if curr_space == None:
+                    #    break
+                #print(homestr)
+                #curr_space = curr_space_save.next_space
+                #homestr = ""
             elif isinstance(curr_space, SafeSpace):
                 if curr_space.next_home != None:
                     homestr += "safe space points to home (id "+str(curr_space.id)+")------------>"
@@ -134,6 +143,11 @@ class Board:
                 else:
                     print("safe space (id "+str(curr_space.id)+")")
                     curr_space = curr_space.next_space
+            elif isinstance(curr_space, FinalSpace):
+                homestr += "final space (id "+str(curr_space.id)+")"
+                print(homestr)
+                curr_space = curr_space_save.next_space
+                homestr = ""
             if curr_space.id == self.first_space.id:
                 break
         for color in self.starts.keys():
@@ -168,7 +182,7 @@ class Board:
         try:
             return self.spacemap[i]
         except KeyError:
-            print("ERROR: Pawn without valid location (not mapped to spacemap)")
+            print("Board::id_to_space: ERROR: Pawn without valid location (not mapped to spacemap)")
             sys.exit(1)
 
     def make_move(self, move): #int (bonus)
@@ -198,13 +212,13 @@ class Board:
     def regular_move(self, move):  #int (bonus)
         moving_pawn = move.pawn
         destination = self.traverse(move.start, move.distance, moving_pawn.color)
-        print("performing a move from "+str(move.start)+" to "+str(destination.id)+" of distance "+str(move.distance))
+        print("Board::regular_move: performing a move from "+str(move.start)+" to "+str(destination.id)+" of distance "+str(move.distance))
         current = self.spacemap[moving_pawn.location]
         current.remove_pawn(moving_pawn)
         moving_pawn.location = destination.id
         bopped = destination.add_pawn(moving_pawn)
         if bopped != None:
-            print("bopped a "+bopped.color+" pawn")
+            print("Board::regular_move: bopped a "+bopped.color+" pawn")
         if bopped != None:
             self.return_pawn(bopped)
             return 20
@@ -240,6 +254,27 @@ class Board:
             self.pawns[colors[i]] = [] #list of pawns
             self.starts[colors[i]] = None #StartSpace"""
         new_board = Board(4)
+
+    def order_pawns(self, color):
+        """Returns a list of pawn objects in order such that
+        the first pawn is farthest on the board"""
+        pawns = self.pawns[color]
+        sorted_pawns = []
+        relative_locs = {}  #dictionary mapping from mapped location to pawn object
+        for pawn in pawns:
+            rel_pawn_loc = self.get_relative_pos(pawn.location, color)
+            relative_locs[rel_pawn_loc] = pawn
+        for rel_loc in sorted(relative_locs.keys(), reverse=True):
+            sorted_pawns.append(relative_locs[rel_loc])
+        return sorted_pawns
+
+    def all_out(self, color):
+        """Returns True if all pawns for a color are not in start"""
+        color_start_id = self.starts[color]
+        for pawn in self.pawns[color]:
+            if pawn.location == color_start_id:
+                return False
+        return True
 
 if __name__ == "__main__":
     print("The Board class")
