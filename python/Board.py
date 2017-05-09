@@ -276,6 +276,26 @@ class Board:
                 return False
         return True
 
+    def categorize_pawns(self):
+        start_pawns = []
+        home_row_pawns = []
+        home_pawns = []
+        main_pawns = []
+
+        all_pawns = []
+        for color in ["red", "green", "blue", "yellow"]:
+            all_pawns += self.pawns[color]
+        for pawn in all_pawns:
+            if isinstance(self.spacemap[pawn.location], StartSpace):
+                start_pawns.append(pawn)
+            elif isinstance(self.spacemap[pawn.location], HomeSpace):
+                home_row_pawns.append(pawn)
+            elif isinstance(self.spacemap[pawn.location], FinalSpace):
+                home_pawns.append(pawn)
+            else:
+                main_pawns.append(pawn)
+        return start_pawns, home_row_pawns, home_pawns, main_pawns
+
 if __name__ == "__main__":
     print("The Board class")
     #b = Board(4)

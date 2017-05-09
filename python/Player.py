@@ -23,6 +23,7 @@ class Player:
     def startGame(self, color):
         self.color = color
         print("Your color is "+self.color)
+        return self.color+" player"
 
     def doublesPenalty(self):
         print("You have a doubles penalty")
