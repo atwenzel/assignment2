@@ -3,12 +3,16 @@ Implements the SPlayer class
 """
 
 #Global
+import socket
 import sys
+import xmltodict
 
 #Local
 from Board import Board
+from MoveFirstPawn import MoveFirstPawn
 from Player import Player
 from RuleChecker import RuleChecker
+import XML
 
 class SPlayer:
     def __init__(self, player): 
@@ -17,7 +21,31 @@ class SPlayer:
         self.color = ""
         self.rc = None
         self.started = False
-    
+        """Listening loop starts here, decode, perform requests to local player, encode results, send back"""
+
+    def dumb_loop(self, ip='localhost', port=8000):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((ip, port))
+        sock.listen(1)
+        while True:
+            connection, client_addr = sock.accept()
+            data = connection.recv(8192)
+            msg_type = data.split()[0][1:-1]
+            if msg_type == 'start-game':
+                sg_d = xmltodict.parse(data)
+                name = self.startGame(sg_d['start-game'])
+                connection.sendall(XML.encode_name(name))
+            elif msg_type == 'do-move':
+                board, dice = XML.decode_do_move(xmltodict.parse(data)['do-move'])
+                moves = self.doMove(board, dice)
+                encoded_moves = XML.encode_moves(moves)
+                connection.sendall(encoded_moves)
+            elif msg_type == 'doubles-penalty':
+                self.doublesPenalty()
+                connection.sendall(XML.encode_void())
+            connection.close()
+             
     def startGame(self, color): #None
         """Takes a color string and starts
         the game"""
@@ -26,8 +54,9 @@ class SPlayer:
             print("Splayer::startGame: player was not told a valid color")
             sys.exit(1)  #game crashes
         self.color = color
-        self.player.startGame(self.color)
+        name = self.player.startGame(self.color)
         self.started = True
+        return name
 
     def doMove(self, board, dice):  #list of Move
         """Takes a Board object and an int
@@ -52,3 +81,7 @@ class SPlayer:
             print("SPlayer::doublesPenalty: ERROR: doublesPenalty() called before the game started, crashing")
             sys.exit(3)
         self.player.doublesPenalty()
+
+if __name__ == "__main__":
+    splayer = SPlayer(MoveFirstPawn("green"))
+    splayer.dumb_loop()

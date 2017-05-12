@@ -144,10 +144,7 @@ class Tester:
     def basic_tests(self):
         ##moving a piece
         board = Board(4)
-        pawn_to_move = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(pawn_to_move)
-        board.spacemap[18].add_pawn(pawn_to_move)
-        pawn_to_move.location = 18
+        pawn_to_move = self.pawn_sim(board, "green", 0, 18)
         rc = RuleChecker(board, [2, 3], "green")
         self.check(rc.b_final.spacemap[18].pawn1 == rc.b_final.pawns["green"][0], "moving a piece: pawn wasn't moved to space 18")
         move = MoveMain(pawn_to_move, 18, 2)
@@ -160,10 +157,7 @@ class Tester:
  
         ##moving into home row
         board = Board(4)
-        pawn_to_move = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(pawn_to_move)
-        board.spacemap[5].add_pawn(pawn_to_move)
-        pawn_to_move.location = 5
+        pawn_to_move = self.pawn_sim(board, "green", 0, 5)
         rc = RuleChecker(board, [1, 3], "green")
         move = MoveMain(pawn_to_move, 5, 1)
         valid = rc.single_move_check(move)
@@ -175,10 +169,7 @@ class Tester:
     
         ##moving on home row
         board = Board(4)
-        pawn_to_move = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(pawn_to_move)
-        board.spacemap[6].add_pawn(pawn_to_move)
-        pawn_to_move.location = 6
+        pawn_to_move = self.pawn_sim(board, "green", 0, 6)
         rc = RuleChecker(board, [2, 3], "green")
         move = MoveMain(pawn_to_move, 6, 2)
         valid = rc.single_move_check(move)
@@ -191,10 +182,7 @@ class Tester:
         ##moving to home
         print("=====moving to home=====")
         board = Board(4)
-        pawn_to_move = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(pawn_to_move)
-        board.spacemap[10].add_pawn(pawn_to_move)
-        pawn_to_move.location = 10
+        pawn_to_move = self.pawn_sim(board, "green", 0, 10)
         rc = RuleChecker(board, [2, 3], "green")
         move = MoveHome(pawn_to_move, 10, 2)
         valid = rc.single_move_check(move)
@@ -220,14 +208,8 @@ class Tester:
         print("=====bopping a piece and getting a bonus=====")
         print("")
         board = Board(4)
-        pawn_to_move = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(pawn_to_move)
-        board.spacemap[18].add_pawn(pawn_to_move)
-        pawn_to_move.location = 18
-        second_pawn = board.pawns["red"][0]
-        board.starts["red"].remove_pawn(second_pawn)
-        board.spacemap[17].add_pawn(second_pawn)
-        second_pawn.location = 17
+        pawn_to_move = self.pawn_sim(board, "green", 0, 18)
+        second_pawn = self.pawn_sim(board, "red", 0, 17)
         move = MoveMain(second_pawn, 17, 1)
         rc = RuleChecker(board, [1, 3], "green")
         valid = rc.single_move_check(move)
@@ -244,10 +226,7 @@ class Tester:
         print("======Enter a piece and bop on safety======")
         print("")
         board = Board(4)
-        second_pawn = board.pawns["red"][0]
-        board.starts["red"].remove_pawn(second_pawn)
-        board.spacemap[17].add_pawn(second_pawn)
-        second_pawn.location = 17
+        second_pawn = self.pawn_sim(board, "red", 0, 17)
         piece_to_enter = board.pawns["green"][0]
         move = EnterPiece(piece_to_enter)
         rc = RuleChecker(board, [1, 5], "green")
@@ -264,14 +243,8 @@ class Tester:
         print("=====Bopping on a safety=====")
         print("")
         board = Board(4)
-        pawn_to_bop = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(pawn_to_bop)
-        board.spacemap[5].add_pawn(pawn_to_bop)
-        pawn_to_bop.location = 5
-        second_pawn = board.pawns["red"][0]
-        board.starts["red"].remove_pawn(second_pawn)
-        board.spacemap[4].add_pawn(second_pawn)
-        second_pawn.location = 4
+        pawn_to_bop = self.pawn_sim(board, "yellow", 0, 5)
+        second_pawn = self.pawn_sim(board, "red", 0, 4)
         move = MoveMain(second_pawn, 4, 1)
         rc = RuleChecker(board, [1, 3], "red")
         valid = rc.single_move_check(move)
@@ -284,31 +257,12 @@ class Tester:
         print("")
         board = Board(4)
 
-        pawn_to_bop1 = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(pawn_to_bop1)
-        board.spacemap[15].add_pawn(pawn_to_bop1)
-        pawn_to_bop1.location = 15
+        pawn_to_bop1 = self.pawn_sim(board, "yellow", 0, 15)
 
-        pawn_to_bop2 = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(pawn_to_bop2)
-        board.spacemap[42].add_pawn(pawn_to_bop2)
-        pawn_to_bop2.location = 42
+        pawn_to_bop2 = self.pawn_sim(board, "yellow", 1, 42)
 
-        bopping_pawn = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(bopping_pawn)
-        board.spacemap[14].add_pawn(bopping_pawn)
-        bopping_pawn.location = 14
+        bopping_pawn = self.pawn_sim(board, "green", 0, 14)
     
-        """moves = [
-            MoveMain(bopping_pawn, bopping_pawn.location, 1),
-            MoveMain(bopping_pawn, 69, 3)
-        ]
-
-        bonus_moves = [
-            MoveMain(bopping_pawn, 15, 20),
-            MoveMain(bopping_pawn, 42, 20)
-        ]"""
-
         moves = [
             MoveMain(bopping_pawn, bopping_pawn.location, 1),
             MoveMain(bopping_pawn, 15, 20),
@@ -334,42 +288,12 @@ class Tester:
         print("")
         board = Board(4)
 
-        pawn_to_bop1 = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(pawn_to_bop1)
-        board.spacemap[4].add_pawn(pawn_to_bop1)
-        pawn_to_bop1.location = 4
-
-        pawn_to_bop2 = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(pawn_to_bop2)
-        board.spacemap[14].add_pawn(pawn_to_bop2)
-        pawn_to_bop2.location = 14
-
-        bopping_pawn = board.pawns["blue"][0]
-        board.starts["blue"].remove_pawn(bopping_pawn)
-        board.spacemap[3].add_pawn(bopping_pawn)
-        bopping_pawn.location = 3
-        
-        block_pawn1 = board.pawns["blue"][1]
-        board.starts["blue"].remove_pawn(block_pawn1)
-        board.spacemap[18].add_pawn(block_pawn1)
-        block_pawn1.location = 18
+        pawn_to_bop1 = self.pawn_sim(board, "yellow", 0, 4)
+        pawn_to_bop2 = self.pawn_sim(board, "yellow", 1, 14)
+        bopping_pawn = self.pawn_sim(board, "blue", 0, 3)        
+        block_pawn1 = self.pawn_sim(board, "blue", 1, 18) 
+        block_pawn2 = self.pawn_sim(board, "blue", 2, 18)
  
-        block_pawn2 = board.pawns["blue"][2]
-        board.starts["blue"].remove_pawn(block_pawn2)
-        board.spacemap[18].add_pawn(block_pawn2)
-        block_pawn2.location = 18
- 
-    
-        """moves = [
-            MoveMain(bopping_pawn, 3, 1),
-            MoveMain(bopping_pawn, 4, 3)
-        ]
-
-        bonus_moves = [
-            MoveMain(block_pawn1, 18, 20),
-            MoveMain(block_pawn2, 18, 20)
-        ]"""
-
         moves = [
             MoveMain(bopping_pawn, 3, 1),
             MoveMain(block_pawn1, 18, 20),
@@ -387,35 +311,10 @@ class Tester:
         print("=====cannot enter home twice and then move a blockade together by 10=====")
         board = Board(4)
 
-        pawn_to_move_home_1 = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(pawn_to_move_home_1)
-        board.spacemap[11].add_pawn(pawn_to_move_home_1)
-        pawn_to_move_home_1.location = 11
-
-        pawn_to_move_home_2 = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(pawn_to_move_home_2)
-        board.spacemap[10].add_pawn(pawn_to_move_home_2)
-        pawn_to_move_home_2.location = 10
-
-        blockade_pawn_1 = board.pawns["green"][2]
-        board.starts["green"].remove_pawn(blockade_pawn_1)
-        board.spacemap[17].add_pawn(blockade_pawn_1)
-        blockade_pawn_1.location = 17
-
-        blockade_pawn_2 = board.pawns["green"][3]
-        board.starts["green"].remove_pawn(blockade_pawn_2)
-        board.spacemap[17].add_pawn(blockade_pawn_2)
-        blockade_pawn_2.location = 17
-
-        """moves = [
-            MoveHome(pawn_to_move_home_1, 11, 1),
-            MoveHome(pawn_to_move_home_2, 10, 2)
-        ]
-
-        bonus_moves = [
-            MoveMain(blockade_pawn_1, 17, 10),
-            MoveMain(blockade_pawn_2, 17, 10)
-        ]"""
+        pawn_to_move_home_1 = self.pawn_sim(board, "green", 0, 11)
+        pawn_to_move_home_2 = self.pawn_sim(board, "green", 1, 10)
+        blockade_pawn_1 = self.pawn_sim(board, "green", 2, 17)
+        blockade_pawn_2 = self.pawn_sim(board, "green", 3, 17)
 
         moves = [
             MoveHome(pawn_to_move_home_1, 11, 1),
@@ -435,16 +334,8 @@ class Tester:
         print("=====cannot enter with a blockade on the entry point=====")
         board = Board(4)
 
-        block_pawn1 = board.pawns["yellow"][2]
-        board.starts["yellow"].remove_pawn(block_pawn1)
-        board.spacemap[17].add_pawn(block_pawn1)
-        block_pawn1.location = 17
- 
-        block_pawn2 = board.pawns["yellow"][3]
-        board.starts["yellow"].remove_pawn(block_pawn2)
-        board.spacemap[17].add_pawn(block_pawn2)
-        block_pawn2.location = 17
- 
+        block_pawn1 = self.pawn_sim(board, "yellow", 2, 17)
+        block_pawn2 = self.pawn_sim(board, "yellow", 3, 17)
         pawn_to_enter = board.pawns["green"][0]
         move = EnterPiece(pawn_to_enter)
 
@@ -459,20 +350,9 @@ class Tester:
         print("=====can form a blockade but cannot add a third piece=====""")
         board = Board(4)
     
-        block_pawn1 = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(block_pawn1)
-        board.spacemap[16].add_pawn(block_pawn1)
-        block_pawn1.location = 16
- 
-        block_pawn2 = board.pawns["yellow"][2]
-        board.starts["yellow"].remove_pawn(block_pawn2)
-        board.spacemap[16].add_pawn(block_pawn2)
-        block_pawn2.location = 16
- 
-        pawn_to_add = board.pawns["yellow"][3]
-        board.starts["yellow"].remove_pawn(pawn_to_add)
-        board.spacemap[15].add_pawn(pawn_to_add)
-        block_pawn2.location = 15
+        block_pawn1 = self.pawn_sim(board, "yellow", 1, 16) 
+        block_pawn2 = self.pawn_sim(board, "yellow", 2, 16)
+        pawn_to_add = self.pawn_sim(board, "yellow", 3, 15)
 
         moves = [
             MoveMain(pawn_to_add, 15, 1),
@@ -490,20 +370,9 @@ class Tester:
         print("=====cannot move directly onto opponent's blockade=====")
         board = Board(4)
     
-        block_pawn1 = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(block_pawn1)
-        board.spacemap[16].add_pawn(block_pawn1)
-        block_pawn1.location = 16
- 
-        block_pawn2 = board.pawns["green"][2]
-        board.starts["green"].remove_pawn(block_pawn2)
-        board.spacemap[16].add_pawn(block_pawn2)
-        block_pawn2.location = 16
- 
-        pawn_to_add = board.pawns["yellow"][3]
-        board.starts["yellow"].remove_pawn(pawn_to_add)
-        board.spacemap[15].add_pawn(pawn_to_add)
-        block_pawn2.location = 15
+        block_pawn1 = self.pawn_sim(board, "green", 1, 16)
+        block_pawn2 = self.pawn_sim(board, "green", 2, 16)
+        pawn_to_add = self.pawn_sim(board, "yellow", 3, 15)
 
         moves = [
             MoveMain(pawn_to_add, 15, 1),
@@ -521,20 +390,9 @@ class Tester:
         print("=====cannot pass a blockade of an opponent=====")
         board = Board(4)
     
-        block_pawn1 = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(block_pawn1)
-        board.spacemap[16].add_pawn(block_pawn1)
-        block_pawn1.location = 16
- 
-        block_pawn2 = board.pawns["green"][2]
-        board.starts["green"].remove_pawn(block_pawn2)
-        board.spacemap[16].add_pawn(block_pawn2)
-        block_pawn2.location = 16
- 
-        pawn_to_add = board.pawns["yellow"][3]
-        board.starts["yellow"].remove_pawn(pawn_to_add)
-        board.spacemap[15].add_pawn(pawn_to_add)
-        block_pawn2.location = 15
+        block_pawn1 = self.pawn_sim(board, "green", 1, 16)
+        block_pawn2 = self.pawn_sim(board, "green", 2, 16) 
+        pawn_to_add = self.pawn_sim(board, "yellow", 3, 15)
 
         moves = [
             MoveMain(pawn_to_add, 15, 2),
@@ -552,20 +410,9 @@ class Tester:
         print("=====cannot pass one's own blockade=====")
         board = Board(4)
     
-        block_pawn1 = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(block_pawn1)
-        board.spacemap[16].add_pawn(block_pawn1)
-        block_pawn1.location = 16
- 
-        block_pawn2 = board.pawns["yellow"][2]
-        board.starts["yellow"].remove_pawn(block_pawn2)
-        board.spacemap[16].add_pawn(block_pawn2)
-        block_pawn2.location = 16
- 
-        pawn_to_add = board.pawns["yellow"][3]
-        board.starts["yellow"].remove_pawn(pawn_to_add)
-        board.spacemap[15].add_pawn(pawn_to_add)
-        block_pawn2.location = 15
+        block_pawn1 = self.pawn_sim(board, "yellow", 1, 16)
+        block_pawn2 = self.pawn_sim(board, "yellow", 2, 16)
+        pawn_to_add = self.pawn_sim(board, "yellow", 3, 15)
        
         moves = [
             MoveMain(pawn_to_add, 15, 2),
@@ -583,20 +430,9 @@ class Tester:
         print("=====cannot pass blockade in home row=====")
         board = Board(4)
     
-        block_pawn1 = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(block_pawn1)
-        board.spacemap[9].add_pawn(block_pawn1)
-        block_pawn1.location = 9
- 
-        block_pawn2 = board.pawns["green"][2]
-        board.starts["green"].remove_pawn(block_pawn2)
-        board.spacemap[9].add_pawn(block_pawn2)
-        block_pawn2.location = 9
- 
-        pawn_to_add = board.pawns["green"][3]
-        board.starts["green"].remove_pawn(pawn_to_add)
-        board.spacemap[8].add_pawn(pawn_to_add)
-        block_pawn2.location = 8
+        block_pawn1 = self.pawn_sim(board, "green", 1, 9)
+        block_pawn2 = self.pawn_sim(board, "green", 2, 9) 
+        pawn_to_add = self.pawn_sim(board, "green", 3, 8)
        
         moves = [
             MoveHome(pawn_to_add, 8, 4)
@@ -612,15 +448,8 @@ class Tester:
         print("=====can break blockade=====")
         board = Board(4)
 
-        block_pawn1 = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(block_pawn1)
-        board.spacemap[16].add_pawn(block_pawn1)
-        block_pawn1.location = 16
- 
-        block_pawn2 = board.pawns["yellow"][2]
-        board.starts["yellow"].remove_pawn(block_pawn2)
-        board.spacemap[16].add_pawn(block_pawn2)
-        block_pawn2.location = 16
+        block_pawn1 = self.pawn_sim(board, "yellow", 1, 16)
+        block_pawn2 = self.pawn_sim(board, "yellow", 2, 16)
  
         moves = [
             MoveMain(block_pawn1, 16, 1),
@@ -638,25 +467,10 @@ class Tester:
         print("=====cannot move a blockade together with two fours=====")
         board = Board(4)
 
-        block_pawn1 = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(block_pawn1)
-        board.spacemap[16].add_pawn(block_pawn1)
-        block_pawn1.location = 16
- 
-        block_pawn2 = board.pawns["yellow"][2]
-        board.starts["yellow"].remove_pawn(block_pawn2)
-        board.spacemap[16].add_pawn(block_pawn2)
-        block_pawn2.location = 16
-
-        other_pawn1 = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(other_pawn1)
-        board.spacemap[25].add_pawn(other_pawn1)
-        other_pawn1.location = 25
-
-        other_pawn2 = board.pawns["yellow"][3]
-        board.starts["yellow"].remove_pawn(other_pawn2)
-        board.spacemap[43].add_pawn(other_pawn2)
-        other_pawn2.location = 43
+        block_pawn1 = self.pawn_sim(board, "yellow", 1, 16)
+        block_pawn2 = self.pawn_sim(board, "yellow", 2, 16)
+        other_pawn1 = self.pawn_sim(board, "yellow", 0, 25)
+        other_pawn2 = self.pawn_sim(board, "yellow", 3, 43)
  
         moves = [
             MoveMain(block_pawn1, 16, 4),
@@ -677,15 +491,8 @@ class Tester:
         print("=====cannot move a blockade with two fours and two threes even if moving 4, 3 out one piece and a 3, 4 with the other=====")
         board = Board(4)
 
-        block_pawn1 = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(block_pawn1)
-        board.spacemap[16].add_pawn(block_pawn1)
-        block_pawn1.location = 16
- 
-        block_pawn2 = board.pawns["yellow"][2]
-        board.starts["yellow"].remove_pawn(block_pawn2)
-        board.spacemap[16].add_pawn(block_pawn2)
-        block_pawn2.location = 16
+        block_pawn1 = self.pawn_sim(board, "yellow", 1, 16)
+        block_pawn2 = self.pawn_sim(board, "yellow", 2, 16)
  
         moves = [
             MoveMain(block_pawn1, 16, 4),
@@ -708,25 +515,10 @@ class Tester:
         print("=====with a blockade and one piece in front of the blockade and a roll of 1, 2 it is possible to form a new blockade=====")
         board = Board(4)
 
-        block_pawn1 = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(block_pawn1)
-        board.spacemap[16].add_pawn(block_pawn1)
-        block_pawn1.location = 16
- 
-        block_pawn2 = board.pawns["yellow"][2]
-        board.starts["yellow"].remove_pawn(block_pawn2)
-        board.spacemap[16].add_pawn(block_pawn2)
-        block_pawn2.location = 16
- 
-        block_pawn3 = board.pawns["yellow"][3]
-        board.starts["yellow"].remove_pawn(block_pawn3)
-        board.spacemap[17].add_pawn(block_pawn3)
-        block_pawn3.location = 17
-
-        random_pawn = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(random_pawn)
-        board.spacemap[20].add_pawn(random_pawn)
-        random_pawn.location = 20
+        block_pawn1 = self.pawn_sim(board, "yellow", 1, 16)
+        block_pawn2 = self.pawn_sim(board, "yellow", 2, 16)
+        block_pawn3 = self.pawn_sim(board, "yellow", 3, 17)
+        random_pawn = self.pawn_sim(board, "yellow", 0, 20)
  
         moves = [
             MoveMain(block_pawn2, 16, 1),
@@ -744,10 +536,7 @@ class Tester:
         ##can move from the main ring to the exit row
         print("=====can move from the main ring to the exit row=====")
         board = Board(4)
-        pawn_to_move = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(pawn_to_move)
-        board.spacemap[2].add_pawn(pawn_to_move)
-        pawn_to_move.location = 2
+        pawn_to_move = self.pawn_sim(board, "green", 0, 2)
         rc = RuleChecker(board, [4, 3], "green")
         move = MoveMain(pawn_to_move, 2, 4)
         valid= rc.single_move_check(move)
@@ -760,24 +549,8 @@ class Tester:
         print("=====can move from the main ring directly home (without landing on home row=====")
         board = Board(4)
 
-        first_pawn = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(first_pawn)
-        board.spacemap[11].add_pawn(first_pawn)
-        first_pawn.location = 11
-
-        second_pawn = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(second_pawn)
-        board.spacemap[0].add_pawn(second_pawn)
-        second_pawn.location = 0
-
-        """moves = [
-            MoveMain(second_pawn, 0, 2),
-            MoveHome(first_pawn, 11, 1)
-        ]
-
-        bonus_moves = [
-            MoveMain(second_pawn, 2, 10)
-        ]"""
+        first_pawn = self.pawn_sim(board, "green", 0, 11)
+        second_pawn = self.pawn_sim(board, "green", 1, 0)
 
         moves = [
             MoveMain(second_pawn, 0, 2),
@@ -786,7 +559,6 @@ class Tester:
         ]
 
         rc = RuleChecker(board, [1, 2], "green")
-        #move = MoveMain(pawn_to_move, 4, 9)
         res = self.apply_moves(rc, moves)
         
         self.check(rc.b_final.pawns["green"][0].location == 12, "first_pawn didn't move to finish space")
@@ -796,10 +568,7 @@ class Tester:
         ##cannot ignore die roll
         print("=====cannot ignore die roll=====")
         board = Board(4)
-        first_pawn = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(first_pawn)
-        board.spacemap[17].add_pawn(first_pawn)
-        first_pawn.location = 17
+        first_pawn = self.pawn_sim(board, "green", 0, 17)
 
         moves = [
             MoveMain(first_pawn, 17, 1)
@@ -817,25 +586,10 @@ class Tester:
         print("=====cannot move either piece, due to blockade=====")
         board = Board(4)
 
-        blockade_pawn_1 = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(blockade_pawn_1)
-        board.spacemap[20].add_pawn(blockade_pawn_1)
-        blockade_pawn_1.location = 20
-
-        blockade_pawn_2 = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(blockade_pawn_2)
-        board.spacemap[20].add_pawn(blockade_pawn_2)
-        blockade_pawn_2.location = 20
-
-        first_pawn = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(first_pawn)
-        board.spacemap[18].add_pawn(first_pawn)
-        first_pawn.location = 18
-
-        second_pawn = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(second_pawn)
-        board.spacemap[19].add_pawn(second_pawn)
-        first_pawn.location = 19
+        blockade_pawn_1 = self.pawn_sim(board, "green", 0, 20)
+        blockade_pawn_2 = self.pawn_sim(board, "green", 1, 20)
+        first_pawn = self.pawn_sim(board, "yellow", 0, 18)
+        second_pawn = self.pawn_sim(board, "yellow", 1, 19)
 
         moves = [
         ]
@@ -852,25 +606,10 @@ class Tester:
         print("=====can only take the first die, due to blockade=====")
         board = Board(4)
 
-        blockade_pawn_1 = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(blockade_pawn_1)
-        board.spacemap[20].add_pawn(blockade_pawn_1)
-        blockade_pawn_1.location = 20
-
-        blockade_pawn_2 = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(blockade_pawn_2)
-        board.spacemap[20].add_pawn(blockade_pawn_2)
-        blockade_pawn_2.location = 20
-
-        first_pawn = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(first_pawn)
-        board.spacemap[18].add_pawn(first_pawn)
-        first_pawn.location = 18
-
-        second_pawn = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(second_pawn)
-        board.spacemap[17].add_pawn(second_pawn)
-        first_pawn.location = 17
+        blockade_pawn_1 = self.pawn_sim(board, "green", 0, 20)
+        blockade_pawn_2 = self.pawn_sim(board, "green", 1, 20)
+        first_pawn = self.pawn_sim(board, "yellow", 0, 18)
+        second_pawn = self.pawn_sim(board, "yellow", 1, 17)
 
         moves = [
             MoveMain(second_pawn, 17, 1)
@@ -888,25 +627,10 @@ class Tester:
         print("=====can only take the second die, due to blockade=====")
         board = Board(4)
 
-        blockade_pawn_1 = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(blockade_pawn_1)
-        board.spacemap[20].add_pawn(blockade_pawn_1)
-        blockade_pawn_1.location = 20
-
-        blockade_pawn_2 = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(blockade_pawn_2)
-        board.spacemap[20].add_pawn(blockade_pawn_2)
-        blockade_pawn_2.location = 20
-
-        first_pawn = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(first_pawn)
-        board.spacemap[18].add_pawn(first_pawn)
-        first_pawn.location = 18
-
-        second_pawn = board.pawns["yellow"][1]
-        board.starts["yellow"].remove_pawn(second_pawn)
-        board.spacemap[17].add_pawn(second_pawn)
-        first_pawn.location = 17
+        blockade_pawn_1 = self.pawn_sim(board, "green", 0, 20)
+        blockade_pawn_2 = self.pawn_sim(board, "green", 1, 20)
+        first_pawn = self.pawn_sim(board, "yellow", 0, 18)
+        second_pawn = self.pawn_sim(board, "yellow", 1, 17)
 
         moves = [
             MoveMain(second_pawn, 17, 1)
@@ -921,25 +645,10 @@ class Tester:
         self.check(res == True, "player was not allowed to take only the second die")
 
         #bop, but don't take the 20
-        blockade_pawn_1 = board.pawns["green"][0]
-        board.starts["green"].remove_pawn(blockade_pawn_1)
-        board.spacemap[20].add_pawn(blockade_pawn_1)
-        blockade_pawn_1.location = 20
-
-        blockade_pawn_2 = board.pawns["green"][1]
-        board.starts["green"].remove_pawn(blockade_pawn_2)
-        board.spacemap[20].add_pawn(blockade_pawn_2)
-        blockade_pawn_2.location = 20
-
-        bopping_pawn = board.pawns["yellow"][0]
-        board.starts["yellow"].remove_pawn(bopping_pawn)
-        board.spacemap[4].add_pawn(bopping_pawn)
-        blockade_pawn_1.location = 4
-
-        pawn_to_bop = board.pawns["blue"][0]
-        board.starts["blue"].remove_pawn(pawn_to_bop)
-        board.spacemap[13].add_pawn(pawn_to_bop)
-        blockade_pawn_1.location = 13
+        blockade_pawn_1 = self.pawn_sim(board, "green", 0, 20)
+        blockade_pawn_2 = self.pawn_sim(board, "green", 1, 20)
+        bopping_pawn = self.pawn_sim(board, "yellow", 0, 4)
+        pawn_to_bop = self.pawn_sim(board, "blue", 0, 13)
          
         moves = [
             MoveMain(bopping_pawn, 4, 2),

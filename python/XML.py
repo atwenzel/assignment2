@@ -16,6 +16,88 @@ from Pawn import Pawn
 from SafeSpace import SafeSpace
 
 """
+start-game
+"""
+
+def encode_start_game(color):
+    return "<start-game> "+color+" </start-game> "
+
+"""
+name
+"""
+
+def encode_name(name):
+    return "<name> "+name+" </name> "
+
+"""
+do-move
+"""
+
+def encode_do_move(board, dice):
+    return "<do-move> "+encode_board(board)+encode_dice(dice)+"</do-move> "
+
+def decode_do_move(do_moves_d):
+    return decode_board(do_moves_d['board']), decode_dice(do_moves_d['dice'])
+
+"""
+move
+"""
+
+def encode_moves(moves):
+    move_s = "<moves> "
+    for move in moves:
+        if isinstance(move, EnterPiece):
+            move_s += encode_enter_piece(move)
+        elif isinstance(move, MoveHome):
+            move_s += encode_move_piece_home(move)
+        else:
+            move_s += encode_move_piece_main(move)
+    move_s += "</moves> "
+    return move_s
+
+def build_move_tokens(tokens, end):
+    move_tokens = []
+    for i in range(len(tokens)):
+        move_tokens.append(tokens[i])
+        if tokens[i] == end:
+            return move_tokens, tokens[i+1:]
+    return move_tokens, []
+
+def decode_moves(moves_s):
+    """This decoder takes raw XML instead of the dictionary"""
+    moves = []
+    tokens = moves_s.split()
+    tokens = tokens[1:-1]  #strip <moves> tags
+    while tokens != []:
+        if tokens[0] == '<enter-piece>':
+            move_tokens, tokens = build_move_tokens(tokens, '</enter-piece>')
+            move_d = xmltodict.parse(' '.join(move_tokens))
+            moves.append(decode_enter_piece(move_d['enter-piece']))
+        elif tokens[0] == '<move-piece-home>':
+            move_tokens, tokens = build_move_tokens(tokens, '</move-piece-home>')
+            move_d = xmltodict.parse(' '.join(move_tokens))
+            moves.append(decode_move_piece_home(move_d['move-piece-home']))
+        else:
+            move_tokens, tokens = build_move_tokens(tokens, '</move-piece-main>')
+            move_d = xmltodict.parse(' '.join(move_tokens))
+            moves.append(decode_move_piece_main(move_d['move-piece-main']))
+    return moves
+
+"""
+doubles-penalty
+"""
+
+def encode_doubles_penalty():
+    return "<doubles-penalty> </doubles-penalty> "
+
+"""
+void
+"""
+
+def encode_void():
+    return "<void> </void> "
+
+"""
 Board
 """
 
@@ -203,7 +285,7 @@ Start Loc
 
 def encode_start_loc(pos):
     map_d = build_map()
-    return "<start> "+us2robby(str(pos), map_d)+" </start> "
+    return "<start> "+str(us2robby(str(pos), map_d))+" </start> "
 
 def decode_start_loc(pos, home_row=False, color=""):
     map_d = build_map()
@@ -231,22 +313,22 @@ def decode_enter_piece(ep_d):
     return EnterPiece(pawn)
 
 def encode_move_piece_main(move):
-    return "<move-piece-main> "+encode_pawn(move.pawn)+encode_start(move.start)+encode_distance(move.distance)+"</move-piece-main> "
+    return "<move-piece-main> "+encode_pawn(move.pawn)+encode_start_loc(move.start)+encode_distance(move.distance)+"</move-piece-main> "
 
 def decode_move_piece_main(mm_d):
     pawn = decode_pawn(mm_d['pawn'])
-    start = decode_start(mm_d['start'])
+    start = decode_start_loc(mm_d['start'])
     distance = int(mm_d['distance'])
     return MoveMain(pawn, start, distance)
 
 def encode_move_piece_home(move):
-    return "<move-piece-home> "+encode_pawn(move.pawn)+encode_start(move.start)+encode_distance(move.distance)+"</move-piece-home> "
+    return "<move-piece-home> "+encode_pawn(move.pawn)+encode_start_loc(move.start)+encode_distance(move.distance)+"</move-piece-home> "
 
-def decode_move_piece_main(mm_d):
-    pawn = decode_pawn(mm_d['pawn'])
-    start = decode_start(mm_d['start'], home_row=True, color=pawn.color)
-    distance = int(mm_d['distance'])
-    return MoveMain(pawn, start, distance)
+def decode_move_piece_home(hr_d):
+    pawn = decode_pawn(hr_d['pawn'])
+    start = decode_start_loc(hr_d['start'], home_row=True, color=pawn.color)
+    distance = int(hr_d['distance'])
+    return MoveHome(pawn, start, distance)
 
 """
 Space ID Mapping
@@ -461,6 +543,44 @@ if __name__ == "__main__":
     md = decode_enter_piece(move_d['enter-piece'])
     check(md.pawn == move.pawn, "decoded enter-piece pawn not equal to original")
 
-    print("=====encodes a MoveMain=====")
-    move = MoveMain(Pawn(0, "red", -1), 17, 1)
-    move_s = encode_move_main(
+    #print("=====encodes a MoveMain=====")
+    #move = MoveMain(Pawn(0, "red", -1), 17, 1)
+    #move_s = encode_move_main(
+
+    print("=====encode void=====")
+    void_s = encode_void()
+    check(void_s == "<void> </void> ", "void not encoded incorrectly "+void_s)
+
+    print("=====encode doubles penalty======")
+    dp_s = encode_doubles_penalty()
+    check(dp_s == "<doubles-penalty> </doubles-penalty> ", "doubles penalty encoded incorrectly "+dp_s)
+
+    print("=====encode moves=====")
+    move_s = encode_moves([EnterPiece(Pawn(0, "red", -1)), MoveHome(Pawn(0, "red", -1), 3, 2)])
+    correct_moves = "<moves> <enter-piece> <pawn> <color> red </color> <id> 0 </id> </pawn> </enter-piece> <move-piece-home> <pawn> <color> red </color> <id> 0 </id> </pawn> <start> 66 </start> <distance> 2 </distance> </move-piece-home> </moves> "
+    check(move_s == correct_moves, "list of moves not encoded correctly")
+
+    print("=====decodes moves=====")
+    moves = [EnterPiece(Pawn(0, "green", -1)), MoveHome(Pawn(0, "green", -1), 10, 2), EnterPiece(Pawn(1, "green", -1))]
+    move_s = encode_moves(moves)
+    decoded_moves = decode_moves(move_s)
+    check(moves == decoded_moves, "moves not decoded correctly")
+
+    print("=====encodes do-moves=====")
+    board = Board(4)
+    dice = [5, 4]
+    do_moves_s = encode_do_move(board, dice)
+    correct = "<do-move> <board> <start> <pawn> <color> yellow </color> <id> 3 </id> </pawn> <pawn> <color> yellow </color> <id> 2 </id> </pawn> <pawn> <color> yellow </color> <id> 1 </id> </pawn> <pawn> <color> yellow </color> <id> 0 </id> </pawn> <pawn> <color> red </color> <id> 3 </id> </pawn> <pawn> <color> red </color> <id> 2 </id> </pawn> <pawn> <color> red </color> <id> 1 </id> </pawn> <pawn> <color> red </color> <id> 0 </id> </pawn> <pawn> <color> green </color> <id> 3 </id> </pawn> <pawn> <color> green </color> <id> 2 </id> </pawn> <pawn> <color> green </color> <id> 1 </id> </pawn> <pawn> <color> green </color> <id> 0 </id> </pawn> <pawn> <color> blue </color> <id> 3 </id> </pawn> <pawn> <color> blue </color> <id> 2 </id> </pawn> <pawn> <color> blue </color> <id> 1 </id> </pawn> <pawn> <color> blue </color> <id> 0 </id> </pawn> </start> <main> </main> <home-rows> </home-rows> <home> </home> </board> <dice> <die> 5 </die> <die> 4 </die> </dice> </do-move> "
+    #check(do_moves_s == correct, "do-moves not encoded correctly")
+    #print(do_moves_s)
+    #print("")
+    #print(correct)
+    do_moves_d = xmltodict.parse(do_moves_s)
+    board, dice = decode_do_move(do_moves_d['do-move'])
+    print(board, dice)
+
+    print("=====encodes name=====")
+    check(encode_name("alex") == "<name> alex </name> ", "name not encoded correctly")
+
+    print("=====encodes start game=====")
+    check(encode_start_game("green") == "<start-game> green </start-game> ", "start-game not encoded correctly")
