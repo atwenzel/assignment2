@@ -50,7 +50,8 @@ class Tester:
     def apply_moves(self, rc, moves):
         valid = True
         for move in moves:
-            if rc.tvals.bonus == [move.distance]:
+            #if rc.tvals.bonus == [move.distance]:
+            if move.distance in rc.tvals.bonus:
                 valid = rc.single_move_check(move, is_bonus_move=True)
             else:
                 valid = rc.single_move_check(move)
@@ -747,10 +748,10 @@ class Tester:
 if __name__ == "__main__":
     print("Testing...")
     t = Tester()
-    t.enter_tests()
-    t.basic_tests()
+    #t.enter_tests()
+    #t.basic_tests()
     t.bopping()
-    t.blockade()
-    t.exit_row()
-    t.game_loop()
-    t.complete_move()
+    #t.blockade()
+    #t.exit_row()
+    #t.game_loop()
+    #t.complete_move()
