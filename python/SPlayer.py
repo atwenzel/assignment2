@@ -5,10 +5,12 @@ Implements the SPlayer class
 #Global
 import socket
 import sys
+from threading import Thread
 import xmltodict
 
 #Local
 from Board import Board
+from GUIPlayer import GUIPlayer
 from MoveFirstPawn import MoveFirstPawn
 from Player import Player
 from RuleChecker import RuleChecker
@@ -22,8 +24,12 @@ class SPlayer:
         self.rc = None
         self.started = False
         """Listening loop starts here, decode, perform requests to local player, encode results, send back"""
+        self.listener_thread = Thread(target=self.dumb_loop)
+        self.listener_thread.daemon = True
+        self.listener_thread.start()
 
     def dumb_loop(self, ip='localhost', port=8000):
+        print("in dumb loop")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((ip, port))
@@ -84,4 +90,8 @@ class SPlayer:
 
 if __name__ == "__main__":
     splayer = SPlayer(MoveFirstPawn("green"))
-    splayer.dumb_loop()
+    print("in main thread")
+    #print("SPlayer: entering dumb_loop")
+    #splayer.dumb_loop
+    while True:
+        pass

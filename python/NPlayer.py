@@ -52,4 +52,4 @@ if __name__ == "__main__":
     #np.contact_client("hello player!")
     print(np.startGame("green"))
     print(np.doMove(Board(4), [5, 2]))
-    np.doublesPenalty()
+    #np.doublesPenalty()
