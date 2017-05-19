@@ -64,7 +64,7 @@ class Board:
             #save the safe space that connects to home
             safe_space_save = curr_space
             #build the 6 home spaces with appropriate color
-            for j in range(6):
+            for j in range(7):
                 curr_space = HomeSpace(curr_id, colors[i])
                 self.spacemap[curr_id] = curr_space
                 curr_id += 1
@@ -130,11 +130,6 @@ class Board:
                 while not isinstance(curr_space, FinalSpace):
                     homestr += " "+curr_space.color+" home space (id "+str(curr_space.id)+")----------->"
                     curr_space = curr_space.next_space
-                    #if curr_space == None:
-                    #    break
-                #print(homestr)
-                #curr_space = curr_space_save.next_space
-                #homestr = ""
             elif isinstance(curr_space, SafeSpace):
                 if curr_space.next_home != None:
                     homestr += "safe space points to home (id "+str(curr_space.id)+")------------>"
@@ -241,19 +236,6 @@ class Board:
         start_space = self.starts[bopped.color]
         bopped.location = start_space.id
         start_space.add_pawn(bopped)
-       
-    def deepcopy(self):
-        """self.first_space = None  #Space
-        self.spacemap = {}  #maps integer to space
-        self.entry_spaces = {}  #maps str(color) to space
-        self.home_starts = {}  #maps str color to space (safe spaces before home rows)
-        colors = ["green", "red", "blue", "yellow"]
-        self.pawns = {}
-        self.starts = {}
-        for i in range(len(colors)):
-            self.pawns[colors[i]] = [] #list of pawns
-            self.starts[colors[i]] = None #StartSpace"""
-        new_board = Board(4)
 
     def order_pawns(self, color):
         """Returns a list of pawn objects in order such that

@@ -120,4 +120,4 @@ class Game:
         return self.status[color]['active']
 
 if __name__ == "__main__":
-    ("The game class")
+    print("The game class")

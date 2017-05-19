@@ -17,40 +17,49 @@ from RuleChecker import RuleChecker
 import XML
 
 class SPlayer:
-    def __init__(self, player): 
+    def __init__(self, player, use_gui=True): 
         """Takes a Player object"""
         self.player = player
         self.color = ""
         self.rc = None
         self.started = False
         """Listening loop starts here, decode, perform requests to local player, encode results, send back"""
-        self.listener_thread = Thread(target=self.dumb_loop)
-        self.listener_thread.daemon = True
-        self.listener_thread.start()
+        if use_gui:
+            self.listener_thread = Thread(target=self.dumb_loop)
+            self.listener_thread.daemon = True
+            self.listener_thread.start()
+        else:
+            self.dumb_loop()
 
-    def dumb_loop(self, ip='localhost', port=8000):
+    def dumb_loop(self, ip='localhost', port=49494, dest_ip='localhost', dest_port=8000):
         print("in dumb loop")
+        #ping the game server
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((ip, port))
-        sock.listen(1)
+        sock.connect((dest_ip, dest_port))
+        #sock.listen(1)
         while True:
-            connection, client_addr = sock.accept()
-            data = connection.recv(8192)
+            #connection, client_addr = sock.accept()
+            data = XML.add_spaces(sock.recv(8192))
+            print(data)
             msg_type = data.split()[0][1:-1]
             if msg_type == 'start-game':
+                print("SPlayer::dumb_loop: got a start-game")
                 sg_d = xmltodict.parse(data)
                 name = self.startGame(sg_d['start-game'])
-                connection.sendall(XML.encode_name(name))
+                sock.sendall(XML.encode_name(name))
             elif msg_type == 'do-move':
+                print("SPlayer::dumb_loop: got a do-move")
                 board, dice = XML.decode_do_move(xmltodict.parse(data)['do-move'])
                 moves = self.doMove(board, dice)
                 encoded_moves = XML.encode_moves(moves)
-                connection.sendall(encoded_moves)
+                sock.sendall(encoded_moves)
             elif msg_type == 'doubles-penalty':
+                print("SPlayer::dumb_loop: got a doubles-penalty")
                 self.doublesPenalty()
-                connection.sendall(XML.encode_void())
-            connection.close()
+                sock.sendall(XML.encode_void())
+            #connection.close()
              
     def startGame(self, color): #None
         """Takes a color string and starts
@@ -91,7 +100,5 @@ class SPlayer:
 if __name__ == "__main__":
     splayer = SPlayer(MoveFirstPawn("green"))
     print("in main thread")
-    #print("SPlayer: entering dumb_loop")
-    #splayer.dumb_loop
-    while True:
-        pass
+#print("SPlayer: entering dumb_loop")
+#splayer.dumb_loop

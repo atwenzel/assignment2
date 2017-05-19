@@ -8,6 +8,7 @@ its first pawn
 #Local
 from Board import Board
 from EnterPiece import EnterPiece
+from FinalSpace import FinalSpace
 from HomeSpace import HomeSpace
 from MoveMain import MoveMain
 from MoveHome import MoveHome
@@ -17,9 +18,9 @@ from StartSpace import StartSpace
 from RuleChecker import RuleChecker
 
 class MoveFirstPawn(Player):
-    def __init__(self, color):
+    def __init__(self):
         Player.__init__(self)
-        self.color = color
+        #self.color = color
     
     def order_pawns(self, board):
         """Returns a list of pawn objects in order such that
@@ -46,7 +47,9 @@ class MoveFirstPawn(Player):
             for pawn in sorted_pawns:
                 print("MoveFirstPawn::doMove:  pawn loop - pawn id: "+str(pawn.id))
                 pawn_space = rc.b_final.spacemap[pawn.location]
-                if isinstance(pawn_space, HomeSpace):
+                if isinstance(pawn_space, FinalSpace):
+                    continue
+                elif isinstance(pawn_space, HomeSpace):
                     print("MoveFirstPawn::doMove: mkaing a HomeMove in doMove")
                     for die in rc.tvals.get_all_dice():
                         new_move = MoveHome(pawn, pawn.location, die)
@@ -56,7 +59,7 @@ class MoveFirstPawn(Player):
                             break
                         else:
                             new_move = None
-                if isinstance(pawn_space, StartSpace):
+                elif isinstance(pawn_space, StartSpace):
                     print("MoveFirstPawn::doMove: making an EnterPiece in doMove")
                     new_move = EnterPiece(pawn)
                     valid, rc = Player.check_next_move(self, rc, new_move)
@@ -71,6 +74,7 @@ class MoveFirstPawn(Player):
                     for die in rc.tvals.get_all_dice():
                         new_move = MoveMain(pawn, pawn.location, die)
                         valid, rc = Player.check_next_move(self, rc, new_move)
+                        print("MoveFirstPawn::doMove: "+str(rc.tvals.bonus))
                         if valid:
                             moves.append(new_move)
                             break

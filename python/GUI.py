@@ -117,9 +117,6 @@ class GUI:
         
         self.build_player_status("")
         self.draw_board(Board(4))
-        #self.root.mainloop()
-        #while True:
-        #    self.root.update()
 
     def queue_has_moves(self):
         for elem in list(self.queue):
@@ -129,11 +126,6 @@ class GUI:
 
     def start(self):
         self.root.update()
-        #self.update_dice([1, 3])
-        #self.root.update()
-        #time.sleep(3)
-        #self.update_dice([1, 3, 20])
-        #self.root.update()
         while True:
             while self.queue.empty():
                 continue
@@ -181,15 +173,12 @@ class GUI:
         self.player_status_label.grid(row=row+2, column=col)
         self.submit_button = tk.Button(self.root, text="SUBMIT", command= lambda: self.set_done())
         self.submit_button.grid(row=10, column=20)
-        #self.player_status_label.configure(text="Please wait for your turn...")
 
     def set_done(self):
         print("setting done to True")
         self.done = True
 
     def draw_board(self, board, orig_row=0, orig_col=0):
-        ##L = tk.Label(self.root, text='', bg='#6394ff', height=2, width=8, borderwidth=2, relief='raised')
-        ##L.grid(row=5, column=5)
         curr_space = board.spacemap[0]
         col = orig_col+8
         row = orig_row+14
@@ -424,14 +413,6 @@ class GUI:
         self.spacemap[green_start_id] = GUISpace(self.root, 12, 12, green_start_id,
                 bg="#10c900", height=5, width=20, columnspan=5, rowspan=5)
 
-        #for color in ["green", "red", "blue", "yellow"]:
-        #    for p_id in range(4):
-        #        pawn = board.pawns[color][p_id]
-        #        pawn_loc_space = self.spacemap[pawn.location]
-        #        gui_pawn = GUIPawn(self.root, pawn, pawn_loc_space.row, pawn_loc_space.col)
-        #        gui_pawn.get_alignment(board.spacemap)
-        #        gui_pawn.bind("<Button-1>", lambda e, pawn=gui_pawn.pawn: self.pawn_select(e, pawn))
-        #        self.pawns[color][p_id] = gui_pawn
         self.build_pawns(board)
     
     def build_pawns(self, board):

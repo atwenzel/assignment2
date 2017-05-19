@@ -101,8 +101,6 @@ def encode_void():
 Board
 """
 
-#pawn_sim(self, board, color, pawnid, newpos)
-
 def encode_board(board):
     map_d = build_map()
     start_pawns, home_row_pawns, home_pawns, main_pawns = board.categorize_pawns()
@@ -120,7 +118,6 @@ def decode_board(board_d):
     for pawn in home_pawns:
         pawn.location = board.finishes[pawn.color]
     for pawn in start_pawns+main_pawns+home_row_pawns+home_pawns:
-    #for pawn in start_pawns+home_row_pawns+home_pawns:
         pawn_sim(board, pawn.color, pawn.id, pawn.location)
     return board
 
@@ -409,6 +406,21 @@ def pawn_sim(board, color, pawnid, newpos):
     board.spacemap[newpos].add_pawn(pawn)
     pawn.location = newpos
     return pawn
+
+"""
+Add Spaces
+"""
+
+def add_spaces(xmlstr):
+    outstr = ""
+    for char in xmlstr:
+        if char == '>':
+            outstr += '> '
+        elif char == '<':
+            outstr += ' <'
+        else:
+            outstr += char
+    return outstr
 
 """
 Testing
