@@ -5,6 +5,7 @@ Starts the SPlayer, GUIPlayer and GUI appropriately
 #Global
 
 #Local
+from BestPlayer import BestPlayer
 from GUI import GUI
 from GUIPlayer import GUIPlayer
 from MoveFirstPawn import MoveFirstPawn
@@ -15,5 +16,8 @@ if __name__ == "__main__":
     #splayer = SPlayer(guiplayer)
     #guiplayer.start_gui()
 
-    mfp = MoveFirstPawn()
-    splayer = SPlayer(mfp, use_gui=False)
+    #mfp = MoveFirstPawn()
+    #splayer = SPlayer(mfp, use_gui=False)
+
+    bp = BestPlayer()
+    splayer = SPlayer(bp, use_gui=False)

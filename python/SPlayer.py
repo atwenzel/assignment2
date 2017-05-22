@@ -54,6 +54,8 @@ class SPlayer:
                 board, dice = XML.decode_do_move(xmltodict.parse(data)['do-move'])
                 moves = self.doMove(board, dice)
                 encoded_moves = XML.encode_moves(moves)
+                print("sending these moves back: "+encoded_moves)
+                print("")
                 sock.sendall(encoded_moves)
             elif msg_type == 'doubles-penalty':
                 print("SPlayer::dumb_loop: got a doubles-penalty")

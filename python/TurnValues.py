@@ -24,7 +24,7 @@ class TurnValues:
 
     def get_all_dice(self):
         #return [die for die in self.dice+[self.bonus] if die != -1]  #TODO: change bonus to a list
-        return [die for die in self.dice+self.bonus if die != -1]
+        return [die for die in [self.die1, self.die2, self.die3, self.die4]+self.bonus if die != -1]
     
     def get_highest_die(self):
         #return max([self.die3, self.die4, self.die1, self.die2, self.bonus])

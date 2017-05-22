@@ -41,5 +41,19 @@ class Player:
     def stop_move_generation(self, rc):
         return (not rc.more_valid_moves()) and (not rc.more_valid_bonus_moves())
 
+    def order_pawns(self, board, reverse=True):
+        """Returns a list of pawn objects in order such that
+        the first pawn is farthest on the board"""
+        pawns = board.pawns[self.color]
+        sorted_pawns = []
+        relative_locs = {}  #dictionary mapping from mapped location to pawn object
+        for pawn in pawns:
+            rel_pawn_loc = board.get_relative_pos(pawn.location, self.color)
+            relative_locs[rel_pawn_loc] = pawn
+        for rel_loc in sorted(relative_locs.keys(), reverse=True):
+            sorted_pawns.append(relative_locs[rel_loc])
+        return sorted_pawns
+ 
+
 if __name__ == "__main__":
     print("General Player class")
