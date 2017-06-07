@@ -24,4 +24,5 @@ if __name__ == "__main__":
     try:
         splayer = SPlayer(bp, use_gui=False, ip=sys.argv[1], port=int(sys.argv[2]))
     except IndexError:
-        print("Usage: python gui_driver.py 
+        print("Usage: python driver.py <ip> <port>")
+        sys.exit(1)

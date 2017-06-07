@@ -4,6 +4,7 @@ Implements the RuleChecker class
 
 #Global
 import copy
+import cPickle
 import sys
 
 #Local
@@ -53,18 +54,18 @@ class RuleChecker:
             else:
                 return False
         else:
-            print("RuleChecker::single_move_check: about to pass "+str(modify)+" as modify to valid_distance")
+            #print("RuleChecker::single_move_check: about to pass "+str(modify)+" as modify to valid_distance")
             if (not self.valid_pawn_to_move(move)) or (not is_bonus_move and not self.valid_distance(move, modify=modify)):
-                print("RuleChecker::single_move_check: no valid pawn to move or not valid distance")
+                #print("RuleChecker::single_move_check: no valid pawn to move or not valid distance")
                 return False
             elif self.blockade_in_path(move):
-                print("RuleChecker::single_move_check: blockade")
+                #print("RuleChecker::single_move_check: blockade")
                 return False
             elif isinstance(move, MoveMain) and self.safe_space_taken(move):
-                print("RuleChecker::single_move_check: pawn in safe space")
+                #print("RuleChecker::single_move_check: pawn in safe space")
                 return False
             elif isinstance(move, MoveHome) and not self.can_go_home(move):
-                print("RuleChecker::single_move_check: can't go home")
+                #print("RuleChecker::single_move_check: can't go home")
                 return False
         bonus = self.b_final.make_move(move)
         if bonus > 0:
@@ -86,7 +87,7 @@ class RuleChecker:
                 found_pawn = True
                 break
         if not found_pawn:
-            print("RuleChecker::valid_enter_dice: no pawns to move")
+            #print("RuleChecker::valid_enter_dice: no pawns to move")
             return False
         if entry_space.has_blockade():
             return False
@@ -111,68 +112,69 @@ class RuleChecker:
                 self.tvals.die1 = -1
                 self.tvals.die2 = -1
             return True
-        print("RuleChecker::valid_enter_dice: not valid entry dice")
+        #print("RuleChecker::valid_enter_dice: not valid entry dice")
         return False
 
     def valid_distance(self, move, modify=True): #boolean
-        print("RuleChecker::valid_distance: modify is "+str(modify))
+        #print("RuleChecker::valid_distance: modify is "+str(modify))
         try:
             next_space = self.b_final.traverse(move.start, move.distance, move.pawn.color)
             if next_space == None:
-                print("RuleChecker::valid_distance: this move overruns FinalSpace, returning False")
+                #print("RuleChecker::valid_distance: this move overruns FinalSpace, returning False")
                 return False
         except AttributeError:
-            print("RuleChecker::valid_distance: invalid move, goes past home")
+            #print("RuleChecker::valid_distance: invalid move, goes past home")
             return False
         if self.safe_space_taken(move) or self.blockade_in_path(move):
-            print("RuleChecker::valid_distance: this move tries to go to an occupied safe space or pass a blockade, returning False")
+            #print("RuleChecker::valid_distance: this move tries to go to an occupied safe space or pass a blockade, returning False")
             return False
         elif move.distance == self.tvals.die1:
             if modify:
-                print("RuleChecker::valid_distance: die 1, "+str(self.tvals.die1)+" was consumed")
+                #print("RuleChecker::valid_distance: die 1, "+str(self.tvals.die1)+" was consumed")
                 self.tvals.die1 = -1
             return True
         elif move.distance == self.tvals.die2:
             if modify:
-                print("RuleChecker::valid_distance: die 2, "+str(self.tvals.die2)+" was consumed")
+                #print("RuleChecker::valid_distance: die 2, "+str(self.tvals.die2)+" was consumed")
                 self.tvals.die2 = -1
             return True
         elif self.tvals.doubles:
             if move.distance == self.tvals.die3:
                 if modify:
-                    print("RuleChecker::valid_distance: die 3, "+str(self.tvals.die3)+" was consumed")
+                    #print("RuleChecker::valid_distance: die 3, "+str(self.tvals.die3)+" was consumed")
                     self.tvals.die3 = -1
                 if self.tvals.die3 == -1 and self.tvals.die4 == -1:
-                    print("RuleChecker::valid_distance: setting doubles flag to False")
+                    #print("RuleChecker::valid_distance: setting doubles flag to False")
                     if self.tvals.bonus != []:
-                        print("RuleChecker::valid_distance: setting doubles flag to False while having a bonus")
-                    self.tvals.doubles = False
+                        #print("RuleChecker::valid_distance: setting doubles flag to False while having a bonus")
+                        self.tvals.doubles = False
                 return True
             elif move.distance == self.tvals.die4:
                 if modify:
-                    print("RuleChecker::valid_distance: die 4, "+str(self.tvals.die4)+" was consumed")
+                    #print("RuleChecker::valid_distance: die 4, "+str(self.tvals.die4)+" was consumed")
                     self.tvals.die4 = -1
                 if self.tvals.die3 == -1 and self.tvals.die4 == -1:
-                    print("RuleChecker::valid_distance: setting doubles flag to False")
+                    #print("RuleChecker::valid_distance: setting doubles flag to False")
                     if self.tvals.bonus != []:
-                        print("RuleChecker::valid_distance: setting doubles flag to False while having a bonus")
-                    self.tvals.doubles = False
+                        #print("RuleChecker::valid_distance: setting doubles flag to False while having a bonus")
+                        self.tvals.doubles = False
                 return True
-        elif self.tvals.bonus != []:
-            print("RuleChecker::valid_distance: iterating over the bonus values "+str(self.tvals.bonus))
+        #elif self.tvals.bonus != []:
+        if self.tvals.bonus != []:
+            #print("RuleChecker::valid_distance: iterating over the bonus values "+str(self.tvals.bonus))
             for bonus in self.tvals.bonus[:]:
-                print("RuleChecker::valid_distance: comparing move.distance "+str(move.distance)+" to bonus "+str(bonus))
+                #print("RuleChecker::valid_distance: comparing move.distance "+str(move.distance)+" to bonus "+str(bonus))
                 if move.distance == bonus:
                     if modify:
-                        print("RuleChecker::valid_distance: bonus "+str(bonus)+" was consumed")
+                        #print("RuleChecker::valid_distance: bonus "+str(bonus)+" was consumed")
                         self.tvals.bonus.remove(bonus)
                     return True
-            print("RuleChecker::valid_distance: Available bonuses, if any, cannot be used, returning False")
+            #print("RuleChecker::valid_distance: Available bonuses, if any, cannot be used, returning False")
             return False
         else:
-            print("RuleChecker::valid_distance: not valid distance")
+            #print("RuleChecker::valid_distance: not valid distance")
             return False
-        print("RuleChecker::valid_distance: somehow fell out of the if/elif/else???")
+        #print("RuleChecker::valid_distance: somehow fell out of the if/elif/else???")
         #for die in self.tvals.get_all_dice():
         #    if move.distance == die:
         #        return True
@@ -229,45 +231,46 @@ class RuleChecker:
 
     def multi_move_check(self, moves):
         if self.moves_checked != len(moves):  #contract - admin must check legality of all individual moves before it checks the final result
-            print("RuleChecker::multi_move_check: ERROR: Tried to call multi_move_check before all moves were checked individually.  Crashing")
+            #print("RuleChecker::multi_move_check: ERROR: Tried to call multi_move_check before all moves were checked individually.  Crashing")
             sys.exit(5)
         if not self.all_dice_used():
             if self.more_valid_moves() or self.more_valid_bonus_moves():
-                print("RuleChecker::multi_move_check: returning false in multi_move_check fro more_valid_moves")
+                #print("RuleChecker::multi_move_check: returning false in multi_move_check fro more_valid_moves")
                 return False
             else:
                 return True
         elif self.duplicate_blockades(self.b_start, self.b_final):
-            print("RuleChecker::multi_move_check: returning false in multi_move_check for duplicate blockades")
+            #print("RuleChecker::multi_move_check: returning false in multi_move_check for duplicate blockades")
             return False
         else:
-            print("RuleChecker::multi_move_check: passed all cases in multi_move_check()")
+            #print("RuleChecker::multi_move_check: passed all cases in multi_move_check()")
             return True
 
     def all_dice_used(self):
-        print("RuleChecker::all_dice_used: all_dice_used", self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4)
+        #print("RuleChecker::all_dice_used: all_dice_used", self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4)
         return self.tvals.die1 == -1 and self.tvals.die2 == -1 and self.tvals.die3 == -1 and self.tvals.die4 == -1
 
     def more_valid_moves(self):
-        print("RuleChecker::more_valid_moves: starting more_valid_moves")
+        #print("RuleChecker::more_valid_moves: starting more_valid_moves")
         color = self.color
         for pawn in self.b_final.starts[color].pawns:
             if self.valid_enter_dice(EnterPiece(pawn), modify=False):
-                print("RuleChecker::move_valid_moves: valid_enter_dice is True")
+                #print("RuleChecker::move_valid_moves: valid_enter_dice is True")
                 return True
         for dice in [self.tvals.die1, self.tvals.die2, self.tvals.die3, self.tvals.die4]:
-            print("RuleChecker::move_valid_moves - die value: "+str(dice))
+            #print("RuleChecker::move_valid_moves - die value: "+str(dice))
             if dice != -1:
                 for pawn in self.b_final.pawns[color]:
-                    print("RuleChecker::more_valid_moves - pawn id: "+str(pawn.id))
-                    print("RuleChecker::more_valid_moves - pawn loc: "+str(pawn.location))
+                    #print("RuleChecker::more_valid_moves - pawn id: "+str(pawn.id))
+                    #print("RuleChecker::more_valid_moves - pawn loc: "+str(pawn.location))
                     if isinstance(self.b_final.spacemap[pawn.location], HomeSpace):
                         if self.can_go_home(MoveHome(pawn, pawn.location, dice)):
-                            temp_board = copy.deepcopy(self.b_final)
+                            #temp_board = copy.deepcopy(self.b_final)
+                            temp_board = cPickle.loads(cPickle.dumps(self.b_final, -1))
                             temp_pawn = temp_board.pawns[pawn.color][pawn.id]
                             temp_board.make_move(MoveHome(temp_pawn, temp_pawn.location, dice))
                             if not self.duplicate_blockades(self.b_start, temp_board):
-                                print("RuleChecker::more_valid_moves: can_go_home is True")
+                                #print("RuleChecker::more_valid_moves: can_go_home is True")
                                 return True
                     if isinstance(self.b_final.spacemap[pawn.location], RegularSpace) or isinstance(self.b_final.spacemap[pawn.location], SafeSpace):
                         if self.valid_distance(MoveMain(pawn, pawn.location, dice), modify=False):
@@ -275,36 +278,38 @@ class RuleChecker:
                             temp_pawn = temp_board.pawns[pawn.color][pawn.id]
                             temp_board.make_move(MoveMain(temp_pawn, temp_pawn.location, dice))
                             if not self.duplicate_blockades(self.b_start, temp_board):
-                                print("RuleChecker::more_valid_moves: valid_distance is True")
+                                #print("RuleChecker::more_valid_moves: valid_distance is True")
                                 return True
-        print("RuleChecker::more_valid_moves: returning false from more_valid_moves")
+        #print("RuleChecker::more_valid_moves: returning false from more_valid_moves")
         return False
 
     def more_valid_bonus_moves(self):
-        print("RuleChecker::more_valid_bonus_moves: starting more_valid_bonus_moves")
+        #print("RuleChecker::more_valid_bonus_moves: starting more_valid_bonus_moves")
         if self.tvals.bonus != []:
-            print("RuleChecker::more_valid_bonus_moves: checking potential bonus values: "+str(self.tvals.bonus))
+            #print("RuleChecker::more_valid_bonus_moves: checking potential bonus values: "+str(self.tvals.bonus))
             for pawn in self.b_final.pawns[self.color]:
                 if isinstance(self.b_final.spacemap[pawn.location], HomeSpace):
                     for bonus in self.tvals.bonus:
+                        #print("RuleChecker::Checking a pawn on HomeSpace if it can move "+str(bonus)+" bonus")
                         if self.can_go_home(MoveHome(pawn, pawn.location, bonus)):
                             temp_board = copy.deepcopy(self.b_final)
                             temp_pawn = temp_board.pawns[pawn.color][pawn.id]
                             temp_board.make_move(MoveHome(temp_pawn, temp_pawn.location, bonus))
                             if not self.duplicate_blockades(self.b_start, temp_board):
-                                print("RuleChecker::more_valid_bonus_moves: can_go_home is True")
-                                return True                           
+                                #print("RuleChecker::more_valid_bonus_moves: can_go_home is True")
+                                return True
                 if isinstance(self.b_final.spacemap[pawn.location], RegularSpace) or isinstance(self.b_final.spacemap[pawn.location], SafeSpace):
                     for bonus in self.tvals.bonus:
+                        #print("RuleChecker::Checking a pawn on RegularSpace or SafeSpace if it can move "+str(bonus)+" bonus")
                         if self.valid_distance(MoveMain(pawn, pawn.location, bonus), modify=False):
-                            print("RuleChecker::more_valid_bonus_moves: Have a move with a valid distance, checking if legal...")
+                            #print("RuleChecker::more_valid_bonus_moves: Have a move with a valid distance, checking if legal...")
                             temp_board = copy.deepcopy(self.b_final)
                             temp_pawn = temp_board.pawns[pawn.color][pawn.id]
                             temp_board.make_move(MoveMain(temp_pawn, temp_pawn.location, bonus))
                             if not self.duplicate_blockades(self.b_start, temp_board):
-                                print("RuleChecker::more_valid_bonus_moves: valid_distance is True")
+                                #print("RuleChecker::more_valid_bonus_moves: valid_distance is True")
                                 return True
-        print("RuleChecker::more_valid_bonus_moves: returning false from more_valid_bonus_moves")
+        #print("RuleChecker::more_valid_bonus_moves: returning false from more_valid_bonus_moves")
         self.tvals.bonus = []
         return False
  
@@ -318,18 +323,18 @@ class RuleChecker:
                 original_pawn = b_start.pawns[pawn.color][pawn.id]
                 if pawn.location != original_pawn.location:
                     original_space = b_start.spacemap[original_pawn.location]
-                    print("RuleChecker::duplicate_blockades: original pawn location: "+str(original_pawn.location))
+                    #print("RuleChecker::duplicate_blockades: original pawn location: "+str(original_pawn.location))
                     if isinstance(original_space, StartSpace):
                         continue
                     if original_space.has_blockade():
                         partner = self.get_other_pawn(pawn, pawn_space)
-                        print("RuleChecker::duplicate_blockades: partner color "+partner.color+", parnter id: "+str(partner.id))
+                        #print("RuleChecker::duplicate_blockades: partner color "+partner.color+", parnter id: "+str(partner.id))
                         original_partner = self.get_other_pawn(original_pawn, original_space)
-                        print("RuleChecker::duplicate_blockades: original partner color "+original_partner.color+", original parnter id: "+str(original_partner.id)) 
+                        #print("RuleChecker::duplicate_blockades: original partner color "+original_partner.color+", original parnter id: "+str(original_partner.id)) 
                         if partner == original_partner:
-                            print("RuleChecker::duplicate_blockades: FOUND A DUPLICATE BLOCKADE")
+                            #print("RuleChecker::duplicate_blockades: FOUND A DUPLICATE BLOCKADE")
                             return True
-        print("RuleChecker::duplicate_blockades: no duplicate blockades")
+        #print("RuleChecker::duplicate_blockades: no duplicate blockades")
         return False
     
     def get_other_pawn(self, pawn, space):

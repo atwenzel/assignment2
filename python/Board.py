@@ -177,7 +177,7 @@ class Board:
         try:
             return self.spacemap[i]
         except KeyError:
-            print("Board::id_to_space: ERROR: Pawn without valid location (not mapped to spacemap)")
+            #print("Board::id_to_space: ERROR: Pawn without valid location (not mapped to spacemap)")
             sys.exit(1)
 
     def make_move(self, move): #int (bonus)
@@ -207,13 +207,17 @@ class Board:
     def regular_move(self, move):  #int (bonus)
         moving_pawn = move.pawn
         destination = self.traverse(move.start, move.distance, moving_pawn.color)
-        print("Board::regular_move: performing a move from "+str(move.start)+" to "+str(destination.id)+" of distance "+str(move.distance))
+        #if isinstance(destination, FinalSpace):
+        #    return 10
+        #print("Board::regular_move: performing a move from "+str(move.start)+" to "+str(destination.id)+" of distance "+str(move.distance))
         current = self.spacemap[moving_pawn.location]
         current.remove_pawn(moving_pawn)
         moving_pawn.location = destination.id
+        if isinstance(destination, FinalSpace):
+            return 10
         bopped = destination.add_pawn(moving_pawn)
-        if bopped != None:
-            print("Board::regular_move: bopped a "+bopped.color+" pawn")
+        #if bopped != None:
+            #print("Board::regular_move: bopped a "+bopped.color+" pawn")
         if bopped != None:
             self.return_pawn(bopped)
             return 20

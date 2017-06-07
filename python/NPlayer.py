@@ -26,7 +26,7 @@ class NPlayer:
         sock.connect((self.ip, self.port))
         sock.sendall(data)
         resp = sock.recv(8192)
-        print("NPlayer: data receieved: "+resp)
+        #print("NPlayer: data receieved: "+resp)
         sock.close()
         return resp
 

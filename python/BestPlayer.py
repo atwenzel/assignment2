@@ -22,64 +22,73 @@ class BestPlayer(Player):
         rc = RuleChecker(board, dice, self.color)
         moves = []
         #sorted_pawns = self.order_pawns(rc.b_final, reverse=False)
+        #print("BestPlayer::doMove: =================================")
         while not Player.stop_move_generation(self, rc):
+            #print("BestPlayer::doMove: rc.tvals.get_all_dice(): "+str(rc.tvals.get_all_dice()))
             sorted_pawns = self.order_pawns(rc.b_final, reverse=False)
             ##check move home
             move, rc = self.can_move_home(sorted_pawns, rc)
             if move != None:
-                print("BestPlayer::doMove: adding a move to home ("+str(vars(move))+")")
-                print("BestPlayer::doMove: current dice: "+str(rc.tvals.get_all_dice()))
+                #print("BestPlayer::doMove: adding a move to home ("+str(vars(move))+")")
+                #print("BestPlayer::doMove: current dice: "+str(rc.tvals.get_all_dice()))
                 moves.append(move)
                 continue
             ##check bop
             move, rc = self.can_bop(sorted_pawns, rc)
             if move != None:
-                print("BestPlayer::doMove: adding a bopping move ("+str(vars(move))+")")
-                print("BestPlayer::doMove: current dice: "+str(rc.tvals.get_all_dice()))
+                #print("BestPlayer::doMove: adding a bopping move ("+str(vars(move))+")")
+                #print("BestPlayer::doMove: current dice: "+str(rc.tvals.get_all_dice()))
                 moves.append(move)
                 continue
             ##check enter
             move, rc = self.can_enter(sorted_pawns, rc)
             if move != None:
-                print("BestPlayer::doMove: adding an enter move ("+str(vars(move))+")")
-                print("BestPlayer::doMove: current dice: "+str(rc.tvals.get_all_dice()))
+                #print("BestPlayer::doMove: adding an enter move ("+str(vars(move))+")")
+                #print("BestPlayer::doMove: current dice: "+str(rc.tvals.get_all_dice()))
                 moves.append(move)
                 continue
             ##check regular move
             move, rc = self.regular_move(sorted_pawns, rc)
             if move != None:
-                print("BestPlayer::doMove: adding a regular move ("+str(vars(move))+")")
-                print("BestPlayer::doMove: current dice: "+str(rc.tvals.get_all_dice()))
+                #print("BestPlayer::doMove: adding a regular move ("+str(vars(move))+")")
+                #print("BestPlayer::doMove: current dice: "+str(rc.tvals.get_all_dice()))
                 moves.append(move)
                 continue
             #sorted_pawns = self.order_pawns(rc.b_final)
+        #print("BestPlayer::doMove: rc.tvals.get_all_dice() after moves complete: "+str(rc.tvals.get_all_dice()))
         return moves
 
     def can_move_home(self, pawns, rc):
         for pawn in pawns:
             for die in rc.tvals.get_all_dice():
-                home_move = MoveHome(pawn, pawn.location, die)
+                curr_space = rc.b_final.spacemap[pawn.location]
+                if isinstance(curr_space, HomeSpace):
+                    home_move = MoveHome(pawn, pawn.location, die)
+                else:
+                    home_move = MoveMain(pawn, pawn.location, die)
                 try:
                     if isinstance(rc.b_final.traverse(pawn.location, die, self.color), FinalSpace):
                         valid, rc = Player.check_next_move(self, rc, home_move)
                         if valid:
-                            print("BestPlayer::can_move_home: dice have valid move home: "+str(rc.tvals.get_all_dice()))
+                            #print("BestPlayer::can_move_home: dice have valid move home: "+str(rc.tvals.get_all_dice()))
                             return home_move, rc
                 except AttributeError:
                     continue
         return None, rc
 
     def can_bop(self, pawns, rc):
-        print("BestPlayer::can_bop: going to check these dice: "+str(rc.tvals.get_all_dice()))
+        #print("BestPlayer::can_bop: going to check these dice: "+str(rc.tvals.get_all_dice()))
         for pawn in pawns:
             for die in rc.tvals.get_all_dice():
                 bop_move = MoveMain(pawn, pawn.location, die)
-                print("BestPlayer::can_bop: Checking this move: "+str(vars(bop_move)))
+                #print("BestPlayer::can_bop: Checking this move: "+str(vars(bop_move)))
                 try:
                     dest = rc.b_final.traverse(pawn.location, die, self.color)
                 except AttributeError:
                     continue
                 if dest == None:
+                    continue
+                if isinstance(dest, FinalSpace):
                     continue
                 if dest.pawn2 == None and (dest.pawn1 != None and dest.pawn1.color != self.color):
                     valid, rc = Player.check_next_move(self, rc, bop_move)

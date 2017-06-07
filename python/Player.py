@@ -4,6 +4,7 @@ Implements the general Player class
 
 #Global
 import copy
+import cPickle
 
 #Local
 
@@ -23,7 +24,7 @@ class Player:
     def startGame(self, color):
         self.color = color
         print("Your color is "+self.color)
-        return self.color+" player"
+        return "Alex/Rovik"
 
     def doublesPenalty(self):
         print("You have a doubles penalty")
@@ -32,6 +33,7 @@ class Player:
     def check_next_move(self, rc, move):
         """Returns if move is valid"""       
         local_rc = copy.deepcopy(rc)
+        #local_rc = cPickle.loads(cPickle.dumps(rc, -1))
         valid = local_rc.single_move_check(move)
         if valid and not local_rc.duplicate_blockades(local_rc.b_start, local_rc.b_final):
             return True, local_rc

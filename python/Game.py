@@ -55,8 +55,8 @@ class Game:
                         else:
                             new_dice = Dice().result
                         if len(new_dice) == 4:
-                            print("Game::start: player has a double")
-                            print("Game::start: current double count: "+str(doubles_count))
+                            #print("Game::start: player has a double")
+                            #print("Game::start: current double count: "+str(doubles_count))
                             doubles_count += 1
                             if doubles_count == 3:
                                 player.doublesPenalty()
@@ -101,7 +101,7 @@ class Game:
 
     def eliminate_player(self, player):
         self.status[player.color]['active'] = False
-        print(player.color+" player has been eliminated for breaking the rules!!!")
+        #print(player.color+" player has been eliminated for breaking the rules!!!")
         return True
 
     def have_winner(self):

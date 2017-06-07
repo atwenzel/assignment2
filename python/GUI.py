@@ -438,13 +438,13 @@ class GUI:
     def update_dice(self, dice_vals):
         start_row = 11
         start_col = 20
-        print("in update_dice")
-        print(len(self.dice))
-        print(len(dice_vals))
+        #print("in update_dice")
+        #print(len(self.dice))
+        #print(len(dice_vals))
         if len(self.dice) < len(dice_vals):
-            print("building more dice")
+            #print("building more dice")
             for i in range(len(dice_vals) - len(self.dice)):
-                print("adding a GUIDie")
+                #print("adding a GUIDie")
                 guidie = GUIDie(self.root, 0, start_row+len(self.dice), start_col)
                 guidie.bind("<Button-1>", lambda e, val=guidie.val: self.die_select(e, val))
                 self.dice.append(guidie)

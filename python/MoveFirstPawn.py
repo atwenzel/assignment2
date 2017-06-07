@@ -45,12 +45,12 @@ class MoveFirstPawn(Player):
             sorted_pawns = self.order_pawns(rc.b_final)
             new_move = None
             for pawn in sorted_pawns:
-                print("MoveFirstPawn::doMove:  pawn loop - pawn id: "+str(pawn.id))
+                #print("MoveFirstPawn::doMove:  pawn loop - pawn id: "+str(pawn.id))
                 pawn_space = rc.b_final.spacemap[pawn.location]
                 if isinstance(pawn_space, FinalSpace):
                     continue
                 elif isinstance(pawn_space, HomeSpace):
-                    print("MoveFirstPawn::doMove: mkaing a HomeMove in doMove")
+                    #print("MoveFirstPawn::doMove: mkaing a HomeMove in doMove")
                     for die in rc.tvals.get_all_dice():
                         new_move = MoveHome(pawn, pawn.location, die)
                         valid, rc = Player.check_next_move(self, rc, new_move)
@@ -60,21 +60,21 @@ class MoveFirstPawn(Player):
                         else:
                             new_move = None
                 elif isinstance(pawn_space, StartSpace):
-                    print("MoveFirstPawn::doMove: making an EnterPiece in doMove")
+                    #print("MoveFirstPawn::doMove: making an EnterPiece in doMove")
                     new_move = EnterPiece(pawn)
                     valid, rc = Player.check_next_move(self, rc, new_move)
                     if valid:
-                        print("MoveFirstPawn::doMove: EnterPiece was valid using pawn "+str(pawn.id))
+                        #print("MoveFirstPawn::doMove: EnterPiece was valid using pawn "+str(pawn.id))
                         moves.append(new_move)
-                        print("MoveFirstPawn::doMove: length of moves: "+str(len(moves)))
+                        #print("MoveFirstPawn::doMove: length of moves: "+str(len(moves)))
                     else:
                         new_move = None
                 else:  #Regular Space
-                    print("MoveFirstPawn::doMove: making a MoveMain in doMove")
+                    #print("MoveFirstPawn::doMove: making a MoveMain in doMove")
                     for die in rc.tvals.get_all_dice():
                         new_move = MoveMain(pawn, pawn.location, die)
                         valid, rc = Player.check_next_move(self, rc, new_move)
-                        print("MoveFirstPawn::doMove: "+str(rc.tvals.bonus))
+                        #print("MoveFirstPawn::doMove: "+str(rc.tvals.bonus))
                         if valid:
                             moves.append(new_move)
                             break
